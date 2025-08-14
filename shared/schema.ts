@@ -56,6 +56,11 @@ export const insertAdSchema = createInsertSchema(ads).omit({
   createdAt: true,
   updatedAt: true,
   views: true,
+}).extend({
+  email: z.string().email().optional().or(z.literal("")).or(z.null()),
+  price: z.number().optional().or(z.null()),
+  currency: z.string().optional().or(z.null()),
+  images: z.array(z.string()).optional().or(z.null()),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

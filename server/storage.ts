@@ -40,7 +40,9 @@ export class MemStorage implements IStorage {
     this.ads = new Map();
     
     // Initialize with default categories
-    this.initializeDefaultCategories();
+    this.initializeDefaultCategories().then(() => {
+      console.log("Categories initialized, starting sample data initialization...");
+    });
   }
 
   private async initializeDefaultCategories() {
@@ -53,9 +55,12 @@ export class MemStorage implements IStorage {
       { name: "أزياء وموضة", nameEn: "fashion", icon: "fas fa-tshirt", color: "#F59E0B", description: "الملابس والإكسسوارات" },
     ];
 
+    console.log("Initializing default categories...");
     for (const category of defaultCategories) {
-      await this.createCategory(category);
+      const created = await this.createCategory(category);
+      console.log(`Created category: ${created.name} (${created.nameEn})`);
     }
+    console.log(`Total categories after initialization: ${this.categories.size}`);
   }
 
   // User operations
@@ -270,82 +275,172 @@ async function initializeSampleData() {
       return;
     }
 
-    // Create sample ads with safe category assignment
-    const sampleAds = [
-      {
-        title: "شقة للإيجار في الرياض - حي الملز",
-        description: "شقة مميزة للإيجار في حي الملز بالرياض، تتكون من 3 غرف نوم، 2 حمام، صالة، مطبخ مجهز. الشقة في الدور الثالث مع مصعد، موقف سيارة، قريبة من المدارس والخدمات.",
-        price: 2500,
-        currency: "ريال",
-        categoryId: categories.find(c => c.nameEn === "real-estate")?.id || categories[0].id,
-        location: "الرياض",
-        phone: "0551234567",
-        email: "owner1@example.com",
-        userId: sampleUser.id,
-        images: [],
-        isApproved: true,
-        isActive: true,
-        isFeatured: true,
-      },
-      {
-        title: "سيارة تويوتا كامري 2020 للبيع",
-        description: "سيارة تويوتا كامري موديل 2020، لون أبيض، ممشى 45 ألف كيلو، حالة ممتازة، سيرفس منتظم في الوكالة، جميع الأوراق سليمة.",
-        price: 85000,
-        currency: "ريال",
-        categoryId: categories.find(c => c.nameEn === "cars")?.id || categories[Math.min(1, categories.length - 1)].id,
-        location: "جدة",
-        phone: "0509876543",
-        userId: sampleUser.id,
-        images: [],
-        isApproved: true,
-        isActive: true,
-        isFeatured: false,
-      },
-      {
-        title: "مطلوب مطور مواقع - React & Node.js",
-        description: "نبحث عن مطور مواقع محترف للعمل في شركة تقنية ناشئة. المطلوب خبرة في React, Node.js, TypeScript. راتب مجزي ومزايا ممتازة.",
-        price: null,
-        currency: "ريال",
-        categoryId: categories.find(c => c.nameEn === "jobs")?.id || categories[Math.min(2, categories.length - 1)].id,
-        location: "دبي",
-        phone: "0501122334",
-        email: "hr@techcompany.com",
-        userId: sampleUser.id,
-        images: [],
-        isApproved: false, // Pending approval
-        isActive: true,
-        isFeatured: false,
-      },
-      {
-        title: "لابتوب MacBook Pro M3 جديد",
-        description: "لابتوب MacBook Pro مع معالج M3، رام 16GB، تخزين 512GB SSD، شاشة 14 بوصة Liquid Retina XDR. جديد بالكرتونة مع جميع الاكسسوارات.",
-        price: 8500,
-        currency: "ريال",
-        categoryId: categories.find(c => c.nameEn === "electronics")?.id || categories[Math.min(3, categories.length - 1)].id,
-        location: "الكويت",
-        phone: "0556677889",
-        userId: sampleUser.id,
-        images: [],
-        isApproved: false, // Pending approval
-        isActive: true,
-        isFeatured: false,
-      },
-      {
-        title: "خدمات تنظيف منازل",
-        description: "نقدم خدمات تنظيف المنازل والشقق والفلل بأفضل الأسعار. فريق محترف مدرب ومجهز بأحدث المعدات. خدمة على مدار الساعة.",
-        price: 150,
-        currency: "ريال",
-        categoryId: categories.find(c => c.nameEn === "services")?.id || categories[Math.min(4, categories.length - 1)].id,
-        location: "أبوظبي",
-        phone: "0542233445",
-        email: "cleaning@service.com",
-        userId: sampleUser.id,
-        images: [],
-        isApproved: true,
-        isActive: true,
-        isFeatured: true,
-      }
-    ];
+    // Create sample ads for all categories
+    const sampleAds = [];
+    
+    // Real Estate ads
+    const realEstateCat = categories.find(c => c.nameEn === "real-estate");
+    if (realEstateCat) {
+      sampleAds.push(
+        {
+          title: "شقة للإيجار في الرياض - حي الملز",
+          description: "شقة مميزة للإيجار في حي الملز بالرياض، تتكون من 3 غرف نوم، 2 حمام، صالة، مطبخ مجهز. الشقة في الدور الثالث مع مصعد، موقف سيارة، قريبة من المدارس والخدمات.",
+          price: 2500,
+          currency: "ريال",
+          categoryId: realEstateCat.id,
+          location: "الرياض",
+          phone: "0551234567",
+          email: "owner1@example.com",
+          userId: sampleUser.id,
+          images: [],
+          isApproved: true,
+          isActive: true,
+          isFeatured: true,
+        },
+        {
+          title: "فيلا للبيع في الدمام",
+          description: "فيلا جديدة للبيع في حي الواحة بالدمام، مساحة الأرض 600 متر، مساحة البناء 400 متر، 5 غرف نوم، 4 حمامات، مجلس، صالة، مطبخ مجهز، حديقة واسعة.",
+          price: 950000,
+          currency: "ريال",
+          categoryId: realEstateCat.id,
+          location: "الدمام",
+          phone: "0557788991",
+          userId: sampleUser.id,
+          images: [],
+          isApproved: true,
+          isActive: true,
+          isFeatured: false,
+        }
+      );
+    }
+    
+    // Cars ads
+    const carsCat = categories.find(c => c.nameEn === "cars");
+    if (carsCat) {
+      sampleAds.push(
+        {
+          title: "سيارة تويوتا كامري 2020 للبيع",
+          description: "سيارة تويوتا كامري موديل 2020، لون أبيض، ممشى 45 ألف كيلو، حالة ممتازة، سيرفس منتظم في الوكالة، جميع الأوراق سليمة.",
+          price: 85000,
+          currency: "ريال",
+          categoryId: carsCat.id,
+          location: "جدة",
+          phone: "0509876543",
+          userId: sampleUser.id,
+          images: [],
+          isApproved: true,
+          isActive: true,
+          isFeatured: false,
+        },
+        {
+          title: "هوندا أكورد 2019 نظيفة جداً",
+          description: "سيارة هوندا أكورد موديل 2019، لون أسود، ممشى 38 ألف كيلو، فل أوبشن، جلد، فتحة سقف، كشافات زينون، حالة الوكالة.",
+          price: 72000,
+          currency: "ريال",
+          categoryId: carsCat.id,
+          location: "المدينة المنورة",
+          phone: "0551122334",
+          userId: sampleUser.id,
+          images: [],
+          isApproved: true,
+          isActive: true,
+          isFeatured: true,
+        }
+      );
+    }
+    
+    // Jobs ads
+    const jobsCat = categories.find(c => c.nameEn === "jobs");
+    if (jobsCat) {
+      sampleAds.push(
+        {
+          title: "مطلوب مطور مواقع - React & Node.js",
+          description: "نبحث عن مطور مواقع محترف للعمل في شركة تقنية ناشئة. المطلوب خبرة في React, Node.js, TypeScript. راتب مجزي ومزايا ممتازة.",
+          price: null,
+          currency: "ريال",
+          categoryId: jobsCat.id,
+          location: "دبي",
+          phone: "0501122334",
+          email: "hr@techcompany.com",
+          userId: sampleUser.id,
+          images: [],
+          isApproved: true,
+          isActive: true,
+          isFeatured: false,
+        }
+      );
+    }
+    
+    // Electronics ads
+    const electronicsCat = categories.find(c => c.nameEn === "electronics");
+    if (electronicsCat) {
+      sampleAds.push(
+        {
+          title: "لابتوب MacBook Pro M3 جديد",
+          description: "لابتوب MacBook Pro مع معالج M3، رام 16GB، تخزين 512GB SSD، شاشة 14 بوصة Liquid Retina XDR. جديد بالكرتونة مع جميع الاكسسوارات.",
+          price: 8500,
+          currency: "ريال",
+          categoryId: electronicsCat.id,
+          location: "الكويت",
+          phone: "0556677889",
+          userId: sampleUser.id,
+          images: [],
+          isApproved: true,
+          isActive: true,
+          isFeatured: false,
+        },
+        {
+          title: "آيفون 15 Pro Max جديد بالكرتونة",
+          description: "آيفون 15 Pro Max، 256 جيجا، لون تايتانيوم أزرق، جديد لم يستخدم، مع جميع الاكسسوارات الأصلية، ضمان سنة من آبل.",
+          price: 5200,
+          currency: "ريال",
+          categoryId: electronicsCat.id,
+          location: "الرياض",
+          phone: "0543344556",
+          userId: sampleUser.id,
+          images: [],
+          isApproved: false, // Pending approval
+          isActive: true,
+          isFeatured: false,
+        },
+        {
+          title: "سماعات AirPods Pro للبيع",
+          description: "سماعات أبل AirPods Pro الجيل الثاني، حالة ممتازة، استخدام شهرين فقط، مع العلبة الأصلية وجميع الاكسسوارات.",
+          price: 850,
+          currency: "ريال",
+          categoryId: electronicsCat.id,
+          location: "جدة",
+          phone: "0566778899",
+          userId: sampleUser.id,
+          images: [],
+          isApproved: false, // Pending approval
+          isActive: true,
+          isFeatured: false,
+        }
+      );
+    }
+    
+    // Services ads
+    const servicesCat = categories.find(c => c.nameEn === "services");
+    if (servicesCat) {
+      sampleAds.push(
+        {
+          title: "خدمات تنظيف منازل",
+          description: "نقدم خدمات تنظيف المنازل والشقق والفلل بأفضل الأسعار. فريق محترف مدرب ومجهز بأحدث المعدات. خدمة على مدار الساعة.",
+          price: 150,
+          currency: "ريال",
+          categoryId: servicesCat.id,
+          location: "أبوظبي",
+          phone: "0542233445",
+          email: "cleaning@service.com",
+          userId: sampleUser.id,
+          images: [],
+          isApproved: true,
+          isActive: true,
+          isFeatured: true,
+        }
+      );
+    }
 
     // Create the ads
     for (const adData of sampleAds) {
@@ -353,10 +448,14 @@ async function initializeSampleData() {
     }
     
     console.log(`Initialized ${sampleAds.length} sample ads successfully`);
+    console.log("Available categories:", categories.map(c => `${c.name} (${c.nameEn})`));
+    console.log("Created ads:", sampleAds.map(ad => `${ad.title} - ${ad.isApproved ? 'Approved' : 'Pending'}`));
   } catch (error) {
     console.error("Error initializing sample data:", error);
   }
 }
 
-// Initialize sample data
-initializeSampleData().catch(console.error);
+// Initialize sample data after a short delay to ensure categories are loaded
+setTimeout(() => {
+  initializeSampleData().catch(console.error);
+}, 100);

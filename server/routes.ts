@@ -120,8 +120,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const imageUrls = files ? files.map(file => `/uploads/${file.filename}`) : [];
 
       const adData = {
-        ...req.body,
+        title: req.body.title,
+        description: req.body.description,
         price: req.body.price ? parseInt(req.body.price) : null,
+        currency: req.body.currency || "ريال",
+        categoryId: req.body.categoryId,
+        userId: req.body.userId,
+        location: req.body.location,
+        phone: req.body.phone,
+        email: req.body.email || null,
         images: imageUrls,
         isApproved: false, // All ads require approval
         isActive: true,
@@ -133,6 +140,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(ad);
     } catch (error) {
+      console.error("Error creating ad:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
       }
