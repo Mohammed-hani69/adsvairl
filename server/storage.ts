@@ -178,6 +178,8 @@ export class MemStorage implements IStorage {
       id,
       email: insertAd.email || null,
       price: insertAd.price || null,
+      currency: insertAd.currency || null,
+      images: insertAd.images || null,
       views: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -249,3 +251,112 @@ export class MemStorage implements IStorage {
 }
 
 export const storage = new MemStorage();
+
+// Initialize with sample data for testing
+async function initializeSampleData() {
+  try {
+    // Create sample user
+    const sampleUser = await storage.createUser({
+      username: "المستخدم التجريبي",
+      email: "test@example.com",
+      password: "password123",
+    });
+
+    // Get categories
+    const categories = await storage.getCategories();
+    
+    if (categories.length === 0) {
+      console.log("No categories found, skipping sample data initialization");
+      return;
+    }
+
+    // Create sample ads with safe category assignment
+    const sampleAds = [
+      {
+        title: "شقة للإيجار في الرياض - حي الملز",
+        description: "شقة مميزة للإيجار في حي الملز بالرياض، تتكون من 3 غرف نوم، 2 حمام، صالة، مطبخ مجهز. الشقة في الدور الثالث مع مصعد، موقف سيارة، قريبة من المدارس والخدمات.",
+        price: 2500,
+        currency: "ريال",
+        categoryId: categories.find(c => c.nameEn === "real-estate")?.id || categories[0].id,
+        location: "الرياض",
+        phone: "0551234567",
+        email: "owner1@example.com",
+        userId: sampleUser.id,
+        images: [],
+        isApproved: true,
+        isActive: true,
+        isFeatured: true,
+      },
+      {
+        title: "سيارة تويوتا كامري 2020 للبيع",
+        description: "سيارة تويوتا كامري موديل 2020، لون أبيض، ممشى 45 ألف كيلو، حالة ممتازة، سيرفس منتظم في الوكالة، جميع الأوراق سليمة.",
+        price: 85000,
+        currency: "ريال",
+        categoryId: categories.find(c => c.nameEn === "cars")?.id || categories[Math.min(1, categories.length - 1)].id,
+        location: "جدة",
+        phone: "0509876543",
+        userId: sampleUser.id,
+        images: [],
+        isApproved: true,
+        isActive: true,
+        isFeatured: false,
+      },
+      {
+        title: "مطلوب مطور مواقع - React & Node.js",
+        description: "نبحث عن مطور مواقع محترف للعمل في شركة تقنية ناشئة. المطلوب خبرة في React, Node.js, TypeScript. راتب مجزي ومزايا ممتازة.",
+        price: null,
+        currency: "ريال",
+        categoryId: categories.find(c => c.nameEn === "jobs")?.id || categories[Math.min(2, categories.length - 1)].id,
+        location: "دبي",
+        phone: "0501122334",
+        email: "hr@techcompany.com",
+        userId: sampleUser.id,
+        images: [],
+        isApproved: false, // Pending approval
+        isActive: true,
+        isFeatured: false,
+      },
+      {
+        title: "لابتوب MacBook Pro M3 جديد",
+        description: "لابتوب MacBook Pro مع معالج M3، رام 16GB، تخزين 512GB SSD، شاشة 14 بوصة Liquid Retina XDR. جديد بالكرتونة مع جميع الاكسسوارات.",
+        price: 8500,
+        currency: "ريال",
+        categoryId: categories.find(c => c.nameEn === "electronics")?.id || categories[Math.min(3, categories.length - 1)].id,
+        location: "الكويت",
+        phone: "0556677889",
+        userId: sampleUser.id,
+        images: [],
+        isApproved: false, // Pending approval
+        isActive: true,
+        isFeatured: false,
+      },
+      {
+        title: "خدمات تنظيف منازل",
+        description: "نقدم خدمات تنظيف المنازل والشقق والفلل بأفضل الأسعار. فريق محترف مدرب ومجهز بأحدث المعدات. خدمة على مدار الساعة.",
+        price: 150,
+        currency: "ريال",
+        categoryId: categories.find(c => c.nameEn === "services")?.id || categories[Math.min(4, categories.length - 1)].id,
+        location: "أبوظبي",
+        phone: "0542233445",
+        email: "cleaning@service.com",
+        userId: sampleUser.id,
+        images: [],
+        isApproved: true,
+        isActive: true,
+        isFeatured: true,
+      }
+    ];
+
+    // Create the ads
+    for (const adData of sampleAds) {
+      await storage.createAd(adData);
+    }
+    
+    console.log(`Initialized ${sampleAds.length} sample ads successfully`);
+  } catch (error) {
+    console.error("Error initializing sample data:", error);
+  }
+}
+
+// Initialize sample data
+initializeSampleData().catch(console.error);
