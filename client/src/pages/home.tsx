@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import Header from "@/components/header";
 import CategoryNav from "@/components/category-nav";
 import SearchFilters from "@/components/search-filters";
@@ -7,6 +8,7 @@ import AdCard from "@/components/ad-card";
 import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Crown, Star, Zap } from "lucide-react";
 import type { AdWithCategory } from "@shared/schema";
 import type { SearchFilters as SearchFiltersType } from "@/lib/types";
 
@@ -64,7 +66,7 @@ export default function Home() {
               <p className="text-xl mb-8 text-blue-100">
                 منصة شاملة لجميع احتياجاتك - من العقارات إلى السيارات والوظائف
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-8">
                 <div className="text-center">
                   <div className="text-3xl font-bold" data-testid="text-stats-ads">25,000+</div>
                   <div className="text-blue-100">إعلان نشط</div>
@@ -82,6 +84,75 @@ export default function Home() {
                   <div className="text-blue-100">إعلان يومياً</div>
                 </div>
               </div>
+              
+              {/* VIP Button */}
+              <div className="flex justify-center">
+                <Link href="/become-vip">
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-orange-500 hover:from-yellow-600 hover:via-yellow-500 hover:to-orange-600 text-black font-bold px-8 py-4 text-lg shadow-2xl border-2 border-yellow-300 transform hover:scale-105 transition-all duration-300 animate-pulse"
+                    data-testid="button-become-vip"
+                  >
+                    <Crown className="h-6 w-6 mr-3 text-black" />
+                    خليك VIP
+                    <Star className="h-5 w-5 mr-2 text-yellow-600" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* VIP Features Section */}
+        <section className="mb-12">
+          <div className="bg-gradient-to-br from-yellow-50 via-orange-50 to-yellow-50 dark:from-yellow-950/20 dark:via-orange-950/20 dark:to-yellow-950/20 rounded-2xl p-8 border border-yellow-200 dark:border-yellow-800/30">
+            <div className="text-center mb-8">
+              <Crown className="h-12 w-12 text-yellow-600 mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                مميزات عضوية VIP الحصرية
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                انضم إلى نخبة التجار واحصل على متجرك الخاص مع مميزات لا تُقاوم
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="text-center bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-yellow-200 dark:border-yellow-700/30">
+                <Crown className="h-10 w-10 text-yellow-600 mx-auto mb-4" />
+                <h4 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">متجرك الخاص</h4>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  احصل على متجر إلكتروني كامل بعلامتك التجارية ولوجو مخصص
+                </p>
+              </div>
+              
+              <div className="text-center bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-yellow-200 dark:border-yellow-700/30">
+                <Zap className="h-10 w-10 text-yellow-600 mx-auto mb-4" />
+                <h4 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">إعلانات مميزة</h4>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  إعلاناتك ستظهر في المقدمة وبتصميم مميز يلفت الانتباه
+                </p>
+              </div>
+              
+              <div className="text-center bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-yellow-200 dark:border-yellow-700/30">
+                <Star className="h-10 w-10 text-yellow-600 mx-auto mb-4" />
+                <h4 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">شارة VIP</h4>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  شارة ذهبية تميزك عن باقي المعلنين وتزيد من ثقة العملاء
+                </p>
+              </div>
+            </div>
+            
+            <div className="text-center mt-8">
+              <Link href="/become-vip">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold px-8 py-3 shadow-lg"
+                  data-testid="button-vip-features"
+                >
+                  <Crown className="h-5 w-5 mr-2" />
+                  ابدأ رحلتك كتاجر VIP
+                </Button>
+              </Link>
             </div>
           </div>
         </section>

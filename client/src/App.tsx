@@ -8,6 +8,7 @@ import AddAd from "@/pages/add-ad";
 import AdDetails from "@/pages/ad-details";
 import Category from "@/pages/category";
 import Admin from "@/pages/admin";
+import BecomeVip from "@/pages/become-vip";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/ad/:id" component={AdDetails} />
       <Route path="/category/:categoryId" component={Category} />
       <Route path="/admin" component={Admin} />
+      <Route path="/become-vip" component={BecomeVip} />
       <Route component={NotFound} />
     </Switch>
   );

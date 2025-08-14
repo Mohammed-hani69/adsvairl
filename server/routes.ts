@@ -241,6 +241,242 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // VIP System APIs
+  
+  // Countries API
+  app.get("/api/vip/countries", async (req, res) => {
+    try {
+      const countries = await storage.getCountries();
+      res.json(countries);
+    } catch (error) {
+      res.status(500).json({ message: "خطأ في جلب الدول" });
+    }
+  });
+
+  // States API
+  app.get("/api/vip/states/:countryId", async (req, res) => {
+    try {
+      const states = await storage.getStates(req.params.countryId);
+      res.json(states);
+    } catch (error) {
+      res.status(500).json({ message: "خطأ في جلب المحافظات" });
+    }
+  });
+
+  // Cities API
+  app.get("/api/vip/cities/:stateId", async (req, res) => {
+    try {
+      const cities = await storage.getCities(req.params.stateId);
+      res.json(cities);
+    } catch (error) {
+      res.status(500).json({ message: "خطأ في جلب المدن" });
+    }
+  });
+
+  // VIP Stores API
+  app.get("/api/vip/stores", async (req, res) => {
+    try {
+      const stores = await storage.getVipStores();
+      res.json(stores);
+    } catch (error) {
+      res.status(500).json({ message: "خطأ في جلب المتاجر" });
+    }
+  });
+
+  app.get("/api/vip/stores/:id", async (req, res) => {
+    try {
+      const store = await storage.getVipStore(req.params.id);
+      if (!store) {
+        return res.status(404).json({ message: "المتجر غير موجود" });
+      }
+      res.json(store);
+    } catch (error) {
+      res.status(500).json({ message: "خطأ في جلب المتجر" });
+    }
+  });
+
+  app.post("/api/vip/stores", upload.fields([
+    { name: 'logoFile', maxCount: 1 },
+    { name: 'bannerFile', maxCount: 1 }
+  ]), async (req, res) => {
+    try {
+      const {
+        name,
+        phone,
+        address,
+        countryId,
+        stateId,
+        cityId,
+        brandName,
+        specialty
+      } = req.body;
+
+      // Handle uploaded files
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const logoFile = files?.logoFile?.[0];
+      const bannerFile = files?.bannerFile?.[0];
+
+      // Create temporary user for now (this should be replaced with actual authentication)
+      let tempUser;
+      try {
+        tempUser = await storage.createUser({
+          username: name,
+          email: `${name.toLowerCase().replace(/\s+/g, '_')}@temp.com`,
+          password: "temp123",
+          phone: phone,
+        });
+      } catch (error) {
+        // User might already exist, try to find by phone
+        const users = await storage.getCategories(); // This is a workaround - we need proper user search
+        tempUser = { id: "temp-user-id" }; // Placeholder
+      }
+
+      const store = await storage.createVipStore({
+        userId: tempUser.id,
+        storeName: brandName,
+        brandName: brandName,
+        specialty: specialty,
+        logo: logoFile ? `/uploads/${logoFile.filename}` : null,
+        banner: bannerFile ? `/uploads/${bannerFile.filename}` : null,
+        address: address,
+        countryId: countryId,
+        stateId: stateId,
+        cityId: cityId,
+        phone: phone,
+        isActive: true,
+        isApproved: false,
+      });
+
+      res.status(201).json(store);
+    } catch (error) {
+      console.error("Error creating VIP store:", error);
+      res.status(500).json({ message: "خطأ في إنشاء المتجر" });
+    }
+  });
+
+  // VIP Orders API
+  app.get("/api/vip/orders", async (req, res) => {
+    try {
+      const orders = await storage.getVipOrders();
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ message: "خطأ في جلب الطلبات" });
+    }
+  });
+
+  app.post("/api/vip/orders", async (req, res) => {
+    try {
+      const {
+        userId,
+        storeId,
+        countryId,
+        amount,
+        currency,
+        paymentMethod,
+        transferProofImage,
+        stripePaymentId
+      } = req.body;
+
+      const order = await storage.createVipOrder({
+        userId,
+        storeId,
+        countryId,
+        amount: amount.toString(),
+        currency,
+        paymentMethod,
+        transferProofImage,
+        stripePaymentId,
+        status: "pending",
+        adminNotes: null,
+      });
+
+      res.status(201).json(order);
+    } catch (error) {
+      console.error("Error creating VIP order:", error);
+      res.status(500).json({ message: "خطأ في إنشاء الطلب" });
+    }
+  });
+
+  // Admin VIP APIs
+  app.get("/api/admin/vip/stores", async (req, res) => {
+    try {
+      const stores = await storage.getVipStores();
+      res.json(stores);
+    } catch (error) {
+      res.status(500).json({ message: "خطأ في جلب المتاجر" });
+    }
+  });
+
+  app.patch("/api/admin/vip/stores/:id/approve", async (req, res) => {
+    try {
+      const success = await storage.approveVipStore(req.params.id);
+      if (success) {
+        res.json({ message: "تم اعتماد المتجر بنجاح" });
+      } else {
+        res.status(404).json({ message: "المتجر غير موجود" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "خطأ في اعتماد المتجر" });
+    }
+  });
+
+  app.get("/api/admin/vip/orders", async (req, res) => {
+    try {
+      const orders = await storage.getVipOrders();
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ message: "خطأ في جلب طلبات VIP" });
+    }
+  });
+
+  app.patch("/api/admin/vip/orders/:id", async (req, res) => {
+    try {
+      const { status, adminNotes } = req.body;
+      const order = await storage.updateVipOrder(req.params.id, {
+        status,
+        adminNotes,
+      });
+      
+      if (order) {
+        res.json(order);
+      } else {
+        res.status(404).json({ message: "الطلب غير موجود" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "خطأ في تحديث الطلب" });
+    }
+  });
+
+  // Admin Countries Management
+  app.get("/api/admin/countries", async (req, res) => {
+    try {
+      const countries = await storage.getCountries();
+      res.json(countries);
+    } catch (error) {
+      res.status(500).json({ message: "خطأ في جلب الدول" });
+    }
+  });
+
+  app.patch("/api/admin/countries/:id", async (req, res) => {
+    try {
+      const { vipPrice, paymentMethods, requiresTransferProof, isActive } = req.body;
+      const country = await storage.updateCountry(req.params.id, {
+        vipPrice,
+        paymentMethods,
+        requiresTransferProof,
+        isActive,
+      });
+      
+      if (country) {
+        res.json(country);
+      } else {
+        res.status(404).json({ message: "الدولة غير موجودة" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "خطأ في تحديث الدولة" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
