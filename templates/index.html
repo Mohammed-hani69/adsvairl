@@ -3,68 +3,104 @@
 {% block title %}الرئيسية{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="gradient-bg text-white py-20">
+<!-- Hero Section with Statistics -->
+<section class="hero-gradient text-white py-20">
     <div class="container mx-auto px-4 text-center">
-        <h1 class="text-4xl md:text-6xl font-bold mb-6">
-            منصة الإعلانات المبوبة الأولى
-        </h1>
-        <p class="text-xl md:text-2xl mb-8 opacity-90">
-            اكتشف آلاف الإعلانات في جميع الأقسام - بيع واشتري بسهولة
-        </p>
-        
-        <!-- Search Bar -->
-        <div class="search-container max-w-4xl mx-auto p-6 rounded-2xl shadow-2xl">
-            <form class="flex flex-col md:flex-row gap-4" action="/search" method="GET">
-                <div class="flex-1">
-                    <input type="text" name="q" placeholder="ابحث عن أي شيء..." 
-                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800" />
+        <!-- Main Hero Content -->
+        <div class="bg-blue-600 bg-opacity-90 rounded-3xl p-12 mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 text-white">
+                اكتشف عالم الإعلانات
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-blue-100">
+                منصة شاملة لجميع احتياجاتك - من العقارات إلى السيارات والوظائف
+            </p>
+            
+            <!-- Statistics -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                <div class="text-center">
+                    <div class="text-3xl md:text-4xl font-bold text-yellow-400">+500</div>
+                    <div class="text-blue-100 text-sm">إعلان جديد</div>
                 </div>
-                <div class="md:w-48">
-                    <select name="category" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800">
-                        <option value="">جميع الأقسام</option>
-                        {% for category in categories %}
-                        <option value="{{ category.id }}">{{ category.name }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="text-center">
+                    <div class="text-3xl md:text-4xl font-bold text-yellow-400">12</div>
+                    <div class="text-blue-100 text-sm">مدن رئيسية</div>
                 </div>
-                <button type="submit" class="btn-primary px-8 py-3 rounded-lg text-white font-semibold">
-                    <i class="fas fa-search mr-2"></i>
-                    بحث
-                </button>
-            </form>
+                <div class="text-center">
+                    <div class="text-3xl md:text-4xl font-bold text-yellow-400">+50,000</div>
+                    <div class="text-blue-100 text-sm">مستخدم</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl md:text-4xl font-bold text-yellow-400">+25,000</div>
+                    <div class="text-blue-100 text-sm">إعلان منشور</div>
+                </div>
+            </div>
+            
+            <!-- CTA Button -->
+            <a href="/add-ad" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-blue-900 px-8 py-3 rounded-lg font-bold text-lg transition-colors">
+                انشر إعلانك مجاناً
+            </a>
         </div>
     </div>
 </section>
 
-<!-- Categories Section -->
-<section class="py-16">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">
-            تصفح الأقسام
-        </h2>
-        
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {% for category in categories %}
-            <a href="/category/{{ category.id }}" class="category-card bg-white p-6 rounded-xl shadow-lg text-center hover:shadow-xl">
-                <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" 
-                     style="background-color: {{ category.color }}20;">
-                    <i class="{{ category.icon }} text-2xl" style="color: {{ category.color }};"></i>
+<!-- VIP Membership Section -->
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4 text-center">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-yellow-500 text-4xl mb-4">
+                <i class="fas fa-crown"></i>
+            </div>
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
+                مميزات عضوية VIP التجارية
+            </h2>
+            <p class="text-gray-600 mb-12">
+                اشترك في باقة الأعمال وتمتع بمزايا حصرية تضمن نجاح إعلاناتك وتميزها عن الآخرين
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <div class="text-yellow-500 text-3xl mb-4">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">ميزات VIP</h3>
+                    <p class="text-gray-600 text-sm">
+                        ميزة إضافية تجعل بياناتك في أعلى صفحات البحث مما يضمن وصولها لعدد أكبر من العملاء
+                    </p>
                 </div>
-                <h3 class="font-semibold text-gray-800">{{ category.name }}</h3>
+                
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <div class="text-yellow-500 text-3xl mb-4">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">إعلانات مميزة</h3>
+                    <p class="text-gray-600 text-sm">
+                        إعلاناتك ستظهر في المقدمة وبتصميم جذاب أكثر تضمن لك الحصول على أكبر عدد من المشاهدات
+                    </p>
+                </div>
+                
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <div class="text-yellow-500 text-3xl mb-4">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">مبيعات أكثر</h3>
+                    <p class="text-gray-600 text-sm">
+                        احصل على زيارات أكثر للمنتجات التجارية لتصل لشريحة أوسع وتحقق مبيعات أعلى
+                    </p>
+                </div>
+            </div>
+            
+            <a href="/become-vip" class="inline-block bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-bold text-lg transition-colors">
+                اشترك الآن في عضوية VIP
             </a>
-            {% endfor %}
         </div>
     </div>
 </section>
 
 <!-- Featured Ads Section -->
-{% if featured_ads %}
-<section class="py-16 bg-gray-100">
+<section class="py-16 bg-white">
     <div class="container mx-auto px-4">
         <div class="flex items-center justify-between mb-12">
             <h2 class="text-3xl md:text-4xl font-bold text-gray-800">
-                <i class="fas fa-star text-yellow-500 mr-2"></i>
                 الإعلانات المميزة
             </h2>
             <a href="/featured" class="text-blue-600 hover:text-blue-800 font-semibold">
@@ -73,121 +109,76 @@
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for ad in featured_ads %}
-            <div class="card-hover bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- Sample Featured Ad -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
                 <div class="relative">
-                    {% if ad.images and ad.images|length > 0 %}
-                    <img src="/static/uploads/{{ ad.images[0] }}" alt="{{ ad.title }}" 
-                         class="w-full h-48 object-cover">
-                    {% else %}
                     <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-image text-gray-400 text-4xl"></i>
+                        <i class="fas fa-camera text-gray-400 text-4xl"></i>
                     </div>
-                    {% endif %}
-                    
                     <div class="absolute top-4 right-4">
-                        <span class="price-tag px-3 py-1 rounded-full text-sm font-bold">
-                            {{ "{:,.0f}".format(ad.price) }} {{ ad.currency }}
-                        </span>
-                    </div>
-                    
-                    <div class="absolute top-4 left-4">
-                        <span class="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                            <i class="fas fa-star mr-1"></i>مميز
+                        <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                            2,500 ريال
                         </span>
                     </div>
                 </div>
                 
                 <div class="p-6">
-                    <h3 class="font-bold text-lg mb-2 text-gray-800 line-clamp-2">{{ ad.title }}</h3>
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ ad.description }}</p>
-                    
-                    <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
-                        <span><i class="fas fa-map-marker-alt mr-1"></i>{{ ad.city.name if ad.city else ad.country.name }}</span>
-                        <span><i class="fas fa-clock mr-1"></i>{{ ad.created_at.strftime('%Y-%m-%d') }}</span>
-                    </div>
-                    
-                    <div class="flex items-center justify-between">
-                        <a href="/ad/{{ ad.id }}" class="btn-primary px-4 py-2 rounded-lg text-white text-sm font-semibold">
-                            عرض التفاصيل
-                        </a>
-                        <span class="text-gray-500 text-sm">
-                            <i class="fas fa-eye mr-1"></i>{{ ad.views_count }}
-                        </span>
-                    </div>
+                    <h3 class="font-bold text-lg mb-2 text-gray-800">شقة للإيجار في الرياض - حي الملز</h3>
+                    <p class="text-gray-600 text-sm mb-4">شقة تمليك أوروبي في حي الملز تتكون من 3 غرف نوم وصالة ومطبخ</p>
+                    <div class="text-sm text-gray-500 mb-4">منذ ساعة واحدة</div>
                 </div>
             </div>
-            {% endfor %}
         </div>
     </div>
 </section>
-{% endif %}
 
-<!-- Recent Ads Section -->
-<section class="py-16">
+<!-- All Categories Section -->
+<section class="py-16 bg-gray-50">
     <div class="container mx-auto px-4">
-        <div class="flex items-center justify-between mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-800">
-                أحدث الإعلانات
-            </h2>
-            <a href="/ads" class="text-blue-600 hover:text-blue-800 font-semibold">
-                عرض الكل <i class="fas fa-arrow-left mr-1"></i>
-            </a>
-        </div>
+        <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">
+            جميع الإعلانات
+        </h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {% for ad in recent_ads %}
-            <div class="card-hover bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Sample Regular Ads -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
                 <div class="relative">
-                    {% if ad.images and ad.images|length > 0 %}
-                    <img src="/static/uploads/{{ ad.images[0] }}" alt="{{ ad.title }}" 
-                         class="w-full h-32 object-cover">
-                    {% else %}
-                    <div class="w-full h-32 bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-image text-gray-400 text-2xl"></i>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="absolute top-2 right-2">
-                        <span class="price-tag px-2 py-1 rounded-full text-xs font-bold">
-                            {{ "{:,.0f}".format(ad.price) }} {{ ad.currency }}
-                        </span>
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-camera text-gray-400 text-4xl"></i>
                     </div>
                 </div>
                 
-                <div class="p-4">
-                    <h3 class="font-semibold text-sm mb-2 text-gray-800 line-clamp-2">{{ ad.title }}</h3>
-                    
-                    <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-                        <span><i class="fas fa-map-marker-alt mr-1"></i>{{ ad.city.name if ad.city else ad.country.name }}</span>
-                        <span>{{ ad.created_at.strftime('%m-%d') }}</span>
+                <div class="p-6">
+                    <h3 class="font-bold text-lg mb-2 text-gray-800">شقة للإيجار في الرياض - حي الياسمين</h3>
+                    <p class="text-gray-600 text-sm mb-4">شقة تمليك أوروبي في حي الياسمين تتكون من 3 غرف نوم وصالة ومطبخ</p>
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-500">منذ ساعة واحدة</div>
+                        <div class="font-bold text-blue-600">2,600 ريال</div>
                     </div>
-                    
-                    <a href="/ad/{{ ad.id }}" class="btn-primary w-full py-2 rounded-lg text-white text-sm font-semibold text-center block">
-                        عرض التفاصيل
-                    </a>
                 </div>
             </div>
-            {% endfor %}
+            
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                <div class="relative">
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-camera text-gray-400 text-4xl"></i>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <h3 class="font-bold text-lg mb-2 text-gray-800">سيارة للبيع - هونداي النترا 2020</h3>
+                    <p class="text-gray-600 text-sm mb-4">سيارة هونداي النترا موديل 2020 ممشى قليل حالة ممتازة</p>
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-500">منذ ساعتين</div>
+                        <div class="font-bold text-blue-600">950,000 ريال</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Call to Action Section -->
-<section class="gradient-bg py-16">
-    <div class="container mx-auto px-4 text-center text-white">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6">
-            هل تريد بيع شيء ما؟
-        </h2>
-        <p class="text-xl mb-8 opacity-90">
-            انشر إعلانك مجاناً واصل إلى آلاف المشترين المحتملين
-        </p>
-        <a href="/add-ad" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors inline-block">
-            <i class="fas fa-plus mr-2"></i>
-            إضافة إعلان مجاني
-        </a>
-    </div>
-</section>
+
 {% endblock %}
 
 {% block extra_scripts %}
