@@ -5,6 +5,9 @@ This is a full-stack classified ads platform built with React, Express, and Type
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
+Backend preference: Flask (Python) instead of Node.js/Express
+Frontend preference: Pure HTML, CSS, JavaScript instead of React
+Technology stack: Flask + Jinja2 templates + vanilla JS + PostgreSQL
 
 # System Architecture
 

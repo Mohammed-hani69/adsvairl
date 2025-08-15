@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ad.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="container mx-auto px-4">
+        <!-- Breadcrumb -->
+        <nav class="mb-6">
+            <ol class="flex items-center space-x-2 rtl:space-x-reverse text-sm text-gray-500">
+                <li><a href="/" class="hover:text-blue-600">الرئيسية</a></li>
+                <li><i class="fas fa-chevron-left mx-2"></i></li>
+                <li><a href="/category/{{ ad.category.id }}" class="hover:text-blue-600">{{ ad.category.name }}</a></li>
+                <li><i class="fas fa-chevron-left mx-2"></i></li>
+                <li class="text-gray-800">{{ ad.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2">
+                <!-- Images Section -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+                    {% if ad.images and ad.images|length > 0 %}
+                    <div class="relative">
+                        <img id="main-image" src="/static/uploads/{{ ad.images[0] }}" alt="{{ ad.title }}" 
+                             class="w-full h-96 object-cover">
+                        
+                        {% if ad.is_featured %}
+                        <div class="absolute top-4 left-4">
+                            <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                <i class="fas fa-star mr-1"></i>مميز
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if ad.images|length > 1 %}
+                    <div class="p-4">
+                        <div class="flex gap-2 overflow-x-auto">
+                            {% for image in ad.images %}
+                            <img src="/static/uploads/{{ image }}" alt="صورة {{ loop.index }}" 
+                                 class="w-20 h-20 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 {% if loop.first %}border-blue-500{% endif %}"
+                                 onclick="changeMainImage('/static/uploads/{{ image }}', this)">
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="w-full h-96 bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-image text-gray-400 text-6xl"></i>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Ad Details -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">{{ ad.title }}</h1>
+                        <div class="price-tag px-4 py-2 rounded-lg text-xl font-bold">
+                            {{ "{:,.0f}".format(ad.price) }} {{ ad.currency }}
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
+                        <span><i class="fas fa-tag mr-1"></i>{{ ad.category.name }}</span>
+                        <span><i class="fas fa-map-marker-alt mr-1"></i>{{ ad.city.name if ad.city else ad.country.name }}</span>
+                        <span><i class="fas fa-clock mr-1"></i>{{ ad.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        <span><i class="fas fa-eye mr-1"></i>{{ ad.views_count }} مشاهدة</span>
+                    </div>
+                    
+                    <div class="prose max-w-none">
+                        <h3 class="text-lg font-semibold mb-3">الوصف</h3>
+                        <p class="text-gray-700 whitespace-pre-line">{{ ad.description }}</p>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">معلومات الاتصال</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-phone text-blue-600 mr-3"></i>
+                            <div>
+                                <span class="text-sm text-gray-500">رقم الهاتف</span>
+                                <p class="font-semibold">{{ ad.contact_phone }}</p>
+                            </div>
+                        </div>
+                        
+                        {% if ad.contact_email %}
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-blue-600 mr-3"></i>
+                            <div>
+                                <span class="text-sm text-gray-500">البريد الإلكتروني</span>
+                                <p class="font-semibold">{{ ad.contact_email }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex gap-4 mt-6">
+                        <a href="tel:{{ ad.contact_phone }}" 
+                           class="btn-primary flex-1 py-3 rounded-lg text-white font-semibold text-center">
+                            <i class="fas fa-phone mr-2"></i>
+                            اتصال
+                        </a>
+                        
+                        {% if ad.contact_email %}
+                        <a href="mailto:{{ ad.contact_email }}" 
+                           class="bg-gray-600 hover:bg-gray-700 flex-1 py-3 rounded-lg text-white font-semibold text-center transition-colors">
+                            <i class="fas fa-envelope mr-2"></i>
+                            إرسال رسالة
+                        </a>
+                        {% endif %}
+                        
+                        <button onclick="shareAd()" 
+                                class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg text-white font-semibold transition-colors">
+                            <i class="fas fa-share mr-2"></i>
+                            مشاركة
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <!-- Safety Tips -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-yellow-800 mb-3">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        نصائح الأمان
+                    </h3>
+                    <ul class="text-sm text-yellow-700 space-y-2">
+                        <li><i class="fas fa-check mr-2"></i>تأكد من صحة المنتج قبل الدفع</li>
+                        <li><i class="fas fa-check mr-2"></i>التقي بالبائع في مكان عام</li>
+                        <li><i class="fas fa-check mr-2"></i>لا تدفع مقدماً إلا بضمانات</li>
+                        <li><i class="fas fa-check mr-2"></i>تحقق من هوية البائع</li>
+                    </ul>
+                </div>
+
+                <!-- Similar Ads -->
+                {% if related_ads %}
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">إعلانات مشابهة</h3>
+                    
+                    <div class="space-y-4">
+                        {% for related_ad in related_ads %}
+                        <a href="/ad/{{ related_ad.id }}" class="block border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                            <div class="flex gap-3">
+                                {% if related_ad.images and related_ad.images|length > 0 %}
+                                <img src="/static/uploads/{{ related_ad.images[0] }}" alt="{{ related_ad.title }}" 
+                                     class="w-16 h-16 object-cover rounded-lg">
+                                {% else %}
+                                <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-image text-gray-400"></i>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-semibold text-sm text-gray-800 mb-1 truncate">{{ related_ad.title }}</h4>
+                                    <p class="text-blue-600 font-bold text-sm">{{ "{:,.0f}".format(related_ad.price) }} {{ related_ad.currency }}</p>
+                                    <p class="text-xs text-gray-500">{{ related_ad.city.name if related_ad.city else related_ad.country.name }}</p>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function changeMainImage(src, thumbnail) {
+        document.getElementById('main-image').src = src;
+        
+        // Remove border from all thumbnails
+        document.querySelectorAll('.cursor-pointer').forEach(img => {
+            img.classList.remove('border-blue-500');
+            img.classList.add('border-transparent');
+        });
+        
+        // Add border to clicked thumbnail
+        thumbnail.classList.remove('border-transparent');
+        thumbnail.classList.add('border-blue-500');
+    }
+    
+    function shareAd() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ ad.title }}',
+                text: '{{ ad.description[:100] }}...',
+                url: window.location.href
+            });
+        } else {
+            // Fallback - copy to clipboard
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('تم نسخ رابط الإعلان إلى الحافظة');
+            });
+        }
+    }
+</script>
+{% endblock %}

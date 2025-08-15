@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}كن عضو VIP{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12">
+    <div class="container mx-auto px-4">
+        <!-- Hero Section -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-crown text-yellow-500 mr-3"></i>
+                كن عضو VIP
+            </h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                انضم إلى نخبة التجار واحصل على مزايا حصرية تساعدك في تنمية أعمالك وزيادة مبيعاتك
+            </p>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-star text-yellow-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">إعلانات مميزة</h3>
+                <p class="text-gray-600">اجعل إعلاناتك تظهر في المقدمة وتحصل على مشاهدات أكثر</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chart-line text-blue-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">إحصائيات متقدمة</h3>
+                <p class="text-gray-600">تتبع أداء إعلاناتك وعدد المشاهدات والاستفسارات</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-headset text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">دعم أولوية</h3>
+                <p class="text-gray-600">احصل على دعم فني سريع ومساعدة مخصصة</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-images text-purple-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">صور أكثر</h3>
+                <p class="text-gray-600">أضف حتى 20 صورة لكل إعلان بدلاً من 5 صور فقط</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-infinity text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">إعلانات لا محدودة</h3>
+                <p class="text-gray-600">انشر عدد لا محدود من الإعلانات دون قيود</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-store text-indigo-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">متجر مخصص</h3>
+                <p class="text-gray-600">احصل على صفحة متجر مخصصة باسمك وشعارك</p>
+            </div>
+        </div>
+
+        <!-- Pricing Plans -->
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">اختر الخطة المناسبة لك</h2>
+            <p class="text-gray-600">أسعار تنافسية مع أفضل المزايا</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
+            {% for country in countries %}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden {% if loop.index == 2 %}ring-2 ring-yellow-500 transform scale-105{% endif %}">
+                {% if loop.index == 2 %}
+                <div class="bg-yellow-500 text-white text-center py-2 font-bold">
+                    الأكثر شعبية
+                </div>
+                {% endif %}
+                
+                <div class="p-8">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">{{ country.name }}</h3>
+                        <div class="mt-4">
+                            <span class="text-4xl font-bold text-gray-800">{{ "{:,.0f}".format(country.vip_price) }}</span>
+                            <span class="text-gray-600">{{ country.currency }} / شهر</span>
+                        </div>
+                    </div>
+
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>إعلانات مميزة لا محدودة</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>متجر مخصص بشعارك</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>إحصائيات تفصيلية</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>دعم فني أولوية</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>حتى 20 صورة لكل إعلان</span>
+                        </li>
+                    </ul>
+
+                    <button class="w-full btn-primary py-3 rounded-lg text-white font-bold" 
+                            onclick="selectCountry('{{ country.id }}', '{{ country.name }}', {{ country.vip_price }}, '{{ country.currency }}')">
+                        اختر هذه الخطة
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Payment Form -->
+        <div id="payment-form" class="hidden max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">إكمال عملية الاشتراك</h3>
+            
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <div class="flex justify-between items-center">
+                    <span>الخطة المختارة:</span>
+                    <span id="selected-plan" class="font-bold"></span>
+                </div>
+                <div class="flex justify-between items-center mt-2">
+                    <span>السعر:</span>
+                    <span id="selected-price" class="font-bold text-blue-600"></span>
+                </div>
+            </div>
+
+            <form id="vip-form">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">الاسم الكامل *</label>
+                        <input type="text" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">رقم الهاتف *</label>
+                        <input type="tel" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">البريد الإلكتروني *</label>
+                    <input type="email" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">اسم المتجر *</label>
+                    <input type="text" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="اسم متجرك التجاري">
+                </div>
+
+                <div class="mb-8">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">طريقة الدفع</label>
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="radio" name="payment_method" value="bank_transfer" checked
+                                   class="mr-2">
+                            <span>تحويل بنكي</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="payment_method" value="stripe"
+                                   class="mr-2">
+                            <span>بطاقة ائتمان</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="button" onclick="hidePaymentForm()"
+                            class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50">
+                        إلغاء
+                    </button>
+                    <button type="submit"
+                            class="flex-1 btn-primary px-6 py-3 rounded-lg text-white font-bold">
+                        تأكيد الاشتراك
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="max-w-4xl mx-auto mt-16">
+            <h2 class="text-3xl font-bold text-gray-800 text-center mb-12">الأسئلة الشائعة</h2>
+            
+            <div class="space-y-4">
+                <div class="bg-white rounded-xl shadow-lg">
+                    <button class="w-full p-6 text-right focus:outline-none" onclick="toggleFaq(this)">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-gray-800">كيف يمكنني إلغاء الاشتراك؟</span>
+                            <i class="fas fa-chevron-down transform transition-transform"></i>
+                        </div>
+                    </button>
+                    <div class="hidden px-6 pb-6 text-gray-600">
+                        يمكنك إلغاء الاشتراك في أي وقت من خلال لوحة التحكم الخاصة بك أو التواصل مع فريق الدعم
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg">
+                    <button class="w-full p-6 text-right focus:outline-none" onclick="toggleFaq(this)">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-gray-800">هل يمكنني تغيير الخطة؟</span>
+                            <i class="fas fa-chevron-down transform transition-transform"></i>
+                        </div>
+                    </button>
+                    <div class="hidden px-6 pb-6 text-gray-600">
+                        نعم، يمكنك الترقية أو التنزيل بين الخطط في أي وقت
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg">
+                    <button class="w-full p-6 text-right focus:outline-none" onclick="toggleFaq(this)">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-gray-800">ما هي طرق الدفع المتاحة؟</span>
+                            <i class="fas fa-chevron-down transform transition-transform"></i>
+                        </div>
+                    </button>
+                    <div class="hidden px-6 pb-6 text-gray-600">
+                        نقبل التحويل البنكي وبطاقات الائتمان والدفع الإلكتروني
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function selectCountry(countryId, countryName, price, currency) {
+        document.getElementById('selected-plan').textContent = countryName;
+        document.getElementById('selected-price').textContent = `${price.toLocaleString()} ${currency} / شهر`;
+        document.getElementById('payment-form').classList.remove('hidden');
+        
+        // Scroll to payment form
+        document.getElementById('payment-form').scrollIntoView({ 
+            behavior: 'smooth' 
+        });
+    }
+    
+    function hidePaymentForm() {
+        document.getElementById('payment-form').classList.add('hidden');
+    }
+    
+    function toggleFaq(button) {
+        const content = button.nextElementSibling;
+        const icon = button.querySelector('i');
+        
+        content.classList.toggle('hidden');
+        icon.classList.toggle('rotate-180');
+    }
+    
+    document.getElementById('vip-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('شكراً لك! سيتم التواصل معك قريباً لإكمال عملية الاشتراك.');
+    });
+</script>
+{% endblock %}
