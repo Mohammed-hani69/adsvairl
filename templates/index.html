@@ -1,8 +1,24 @@
 {% extends "base.html" %}
+{% from 'components/adsense_ad.html' import render_adsense_ad %}
 
 {% block title %}الرئيسية{% endblock %}
 
 {% block content %}
+<!-- Header AdSense Ads -->
+{% if adsense_ads.header %}
+    <section class="py-4 bg-gray-100">
+        <div class="container mx-auto px-4 text-center">
+            {% for ad in adsense_ads.header %}
+                {% if ad.is_active %}
+                    <div class="adsense-ad adsense-header">
+                        {{ ad.ad_code | safe }}
+                        <div class="text-xs text-gray-400 mt-1">إعلان</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
 <!-- Hero Section with Statistics -->
 <section class="hero-gradient text-white py-20">
     <div class="container mx-auto px-4 text-center">
@@ -178,6 +194,37 @@
     </div>
 </section>
 
+<!-- Content AdSense Ads -->
+{% if adsense_ads.content %}
+    <section class="py-4">
+        <div class="container mx-auto px-4 text-center">
+            {% for ad in adsense_ads.content %}
+                {% if ad.is_active %}
+                    <div class="adsense-ad adsense-content">
+                        {{ ad.ad_code | safe }}
+                        <div class="text-xs text-gray-400 mt-1">إعلان</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+
+<!-- Footer AdSense Ads -->
+{% if adsense_ads.footer %}
+    <section class="py-4 bg-gray-100">
+        <div class="container mx-auto px-4 text-center">
+            {% for ad in adsense_ads.footer %}
+                {% if ad.is_active %}
+                    <div class="adsense-ad adsense-footer">
+                        {{ ad.ad_code | safe }}
+                        <div class="text-xs text-gray-400 mt-1">إعلان</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
 
 {% endblock %}
 

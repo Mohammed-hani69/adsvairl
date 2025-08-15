@@ -82,6 +82,14 @@
                         </a>
                     </li>
                     
+                    <li>
+                        <a href="{{ url_for('admin_adsense') }}" 
+                           class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors {% if request.endpoint == 'admin_adsense' %}sidebar-active{% endif %}">
+                            <i class="fas fa-ad mr-3"></i>
+                            إعلانات AdSense
+                        </a>
+                    </li>
+                    
                     <li class="pt-4 border-t border-gray-200">
                         <a href="/" 
                            class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">

@@ -1,0 +1,154 @@
+{% extends "admin/base.html" %}
+
+{% block page_title %}إدارة إعلانات AdSense{% endblock %}
+
+{% block content %}
+<div class="flex-1 space-y-6">
+    <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-gray-900">إدارة إعلانات AdSense</h2>
+        <a href="{{ url_for('admin_adsense_add') }}" 
+           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg inline-flex items-center">
+            <i class="fas fa-plus ml-2"></i>
+            إضافة إعلان AdSense جديد
+        </a>
+    </div>
+
+
+
+    <!-- AdSense Ads Table -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">جميع إعلانات AdSense</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">اسم الإعلان</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">معرف الوحدة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الموضع</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الصفحة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الإضافة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for ad in adsense_ads %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ ad.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <code class="bg-gray-100 px-2 py-1 rounded text-xs">{{ ad.ad_unit_id }}</code>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if ad.placement == 'header' %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">الرأس</span>
+                            {% elif ad.placement == 'sidebar' %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">الشريط الجانبي</span>
+                            {% elif ad.placement == 'content' %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">المحتوى</span>
+                            {% elif ad.placement == 'footer' %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">التذييل</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {% if ad.page_location == 'home' %}
+                                الرئيسية
+                            {% elif ad.page_location == 'category' %}
+                                صفحات الأقسام
+                            {% elif ad.page_location == 'ad_details' %}
+                                تفاصيل الإعلان
+                            {% else %}
+                                جميع الصفحات
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if ad.is_active %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">مفعل</span>
+                            {% else %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">معطل</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ad.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                <a href="{{ url_for('admin_adsense_edit', ad_id=ad.id) }}" 
+                                   class="text-blue-600 hover:text-blue-900">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('admin_adsense_toggle', ad_id=ad.id) }}" 
+                                      class="inline">
+                                    <button type="submit" class="text-{{ 'yellow' if ad.is_active else 'green' }}-600 hover:text-{{ 'yellow' if ad.is_active else 'green' }}-900">
+                                        <i class="fas fa-{{ 'pause' if ad.is_active else 'play' }}"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('admin_adsense_delete', ad_id=ad.id) }}" 
+                                      class="inline" 
+                                      onsubmit="return confirm('هل أنت متأكد من حذف هذا الإعلان؟')">
+                                    <button type="submit" class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <div class="text-gray-500">
+                                <i class="fas fa-ad fa-3x mb-4"></i>
+                                <p class="text-lg font-medium mb-2">لا توجد إعلانات AdSense</p>
+                                <a href="{{ url_for('admin_adsense_add') }}" 
+                                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg inline-flex items-center">
+                                    <i class="fas fa-plus ml-2"></i>
+                                    إضافة أول إعلان AdSense
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Ad Placement Guide -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">دليل أماكن الإعلانات</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex items-start space-x-3 rtl:space-x-reverse">
+                    <i class="fas fa-arrow-up text-blue-500 mt-1"></i>
+                    <div>
+                        <h4 class="font-medium text-gray-900">الرأس (Header)</h4>
+                        <p class="text-sm text-gray-600">يظهر في أعلى الصفحة تحت شريط التنقل مباشرة</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3 rtl:space-x-reverse">
+                    <i class="fas fa-columns text-yellow-500 mt-1"></i>
+                    <div>
+                        <h4 class="font-medium text-gray-900">الشريط الجانبي (Sidebar)</h4>
+                        <p class="text-sm text-gray-600">يظهر في الجانب الأيمن أو الأيسر من المحتوى</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3 rtl:space-x-reverse">
+                    <i class="fas fa-align-center text-green-500 mt-1"></i>
+                    <div>
+                        <h4 class="font-medium text-gray-900">المحتوى (Content)</h4>
+                        <p class="text-sm text-gray-600">يظهر داخل المحتوى الرئيسي للصفحة</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3 rtl:space-x-reverse">
+                    <i class="fas fa-arrow-down text-gray-500 mt-1"></i>
+                    <div>
+                        <h4 class="font-medium text-gray-900">التذييل (Footer)</h4>
+                        <p class="text-sm text-gray-600">يظهر في أسفل الصفحة قبل التذييل</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

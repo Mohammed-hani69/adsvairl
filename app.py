@@ -75,6 +75,20 @@ class Category(db.Model):
     
     ads = db.relationship('Ad', backref='category', lazy=True)
 
+class AdSenseAd(db.Model):
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(100), nullable=False)  # Display name for admin
+    ad_unit_id = db.Column(db.String(200), nullable=False)  # AdSense ad unit ID
+    ad_code = db.Column(db.Text, nullable=False)  # Full AdSense code
+    placement = db.Column(db.String(50), nullable=False)  # header, sidebar, footer, content, etc.
+    page_location = db.Column(db.String(50), nullable=False)  # home, category, ad_details, all
+    is_active = db.Column(db.Boolean, default=True)
+    width = db.Column(db.Integer)  # Ad width
+    height = db.Column(db.Integer)  # Ad height
+    responsive = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 class Ad(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title = db.Column(db.String(200), nullable=False)
@@ -101,16 +115,33 @@ class Ad(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 # Routes
+def get_adsense_ads(page_location, placement=None):
+    """Helper function to get AdSense ads for a specific page and placement"""
+    query = AdSenseAd.query.filter_by(is_active=True)
+    query = query.filter((AdSenseAd.page_location == page_location) | (AdSenseAd.page_location == 'all'))
+    if placement:
+        query = query.filter_by(placement=placement)
+    return query.all()
+
 @app.route('/')
 def home():
     categories = Category.query.filter_by(is_active=True).all()
     featured_ads = Ad.query.filter_by(is_featured=True, is_approved=True, is_active=True).limit(6).all()
     recent_ads = Ad.query.filter_by(is_approved=True, is_active=True).order_by(Ad.created_at.desc()).limit(12).all()
     
+    # Get AdSense ads for home page
+    adsense_ads = {
+        'header': get_adsense_ads('home', 'header'),
+        'sidebar': get_adsense_ads('home', 'sidebar'),
+        'content': get_adsense_ads('home', 'content'),
+        'footer': get_adsense_ads('home', 'footer')
+    }
+    
     return render_template('index.html', 
                          categories=categories, 
                          featured_ads=featured_ads, 
-                         recent_ads=recent_ads)
+                         recent_ads=recent_ads,
+                         adsense_ads=adsense_ads)
 
 
 
@@ -357,6 +388,88 @@ def admin_users():
     users = User.query.filter_by(is_admin=False).all()
     return render_template('admin/users.html', users=users)
 
+# AdSense Management Routes
+@app.route('/admin/adsense')
+@admin_required
+def admin_adsense():
+    adsense_ads = AdSenseAd.query.order_by(AdSenseAd.created_at.desc()).all()
+    return render_template('admin/adsense.html', adsense_ads=adsense_ads)
+
+@app.route('/admin/adsense/add', methods=['GET', 'POST'])
+@admin_required
+def admin_adsense_add():
+    if request.method == 'POST':
+        try:
+            adsense_ad = AdSenseAd(
+                name=request.form.get('name'),
+                ad_unit_id=request.form.get('ad_unit_id'),
+                ad_code=request.form.get('ad_code'),
+                placement=request.form.get('placement'),
+                page_location=request.form.get('page_location'),
+                width=int(request.form.get('width', 0)) if request.form.get('width') else None,
+                height=int(request.form.get('height', 0)) if request.form.get('height') else None,
+                responsive=request.form.get('responsive') == 'on',
+                is_active=request.form.get('is_active') == 'on'
+            )
+            
+            db.session.add(adsense_ad)
+            db.session.commit()
+            flash('تم إضافة إعلان AdSense بنجاح', 'success')
+            return redirect(url_for('admin_adsense'))
+            
+        except Exception as e:
+            flash(f'حدث خطأ: {str(e)}', 'error')
+    
+    return render_template('admin/adsense_form.html', ad=None)
+
+@app.route('/admin/adsense/<ad_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def admin_adsense_edit(ad_id):
+    adsense_ad = AdSenseAd.query.get_or_404(ad_id)
+    
+    if request.method == 'POST':
+        try:
+            adsense_ad.name = request.form.get('name')
+            adsense_ad.ad_unit_id = request.form.get('ad_unit_id')
+            adsense_ad.ad_code = request.form.get('ad_code')
+            adsense_ad.placement = request.form.get('placement')
+            adsense_ad.page_location = request.form.get('page_location')
+            adsense_ad.width = int(request.form.get('width', 0)) if request.form.get('width') else None
+            adsense_ad.height = int(request.form.get('height', 0)) if request.form.get('height') else None
+            adsense_ad.responsive = request.form.get('responsive') == 'on'
+            adsense_ad.is_active = request.form.get('is_active') == 'on'
+            adsense_ad.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            flash('تم تحديث إعلان AdSense بنجاح', 'success')
+            return redirect(url_for('admin_adsense'))
+            
+        except Exception as e:
+            flash(f'حدث خطأ: {str(e)}', 'error')
+    
+    return render_template('admin/adsense_form.html', ad=adsense_ad)
+
+@app.route('/admin/adsense/<ad_id>/toggle', methods=['POST'])
+@admin_required
+def admin_adsense_toggle(ad_id):
+    adsense_ad = AdSenseAd.query.get_or_404(ad_id)
+    adsense_ad.is_active = not adsense_ad.is_active
+    adsense_ad.updated_at = datetime.utcnow()
+    db.session.commit()
+    
+    status = 'تم تفعيل' if adsense_ad.is_active else 'تم إلغاء تفعيل'
+    flash(f'{status} إعلان AdSense', 'success')
+    return redirect(url_for('admin_adsense'))
+
+@app.route('/admin/adsense/<ad_id>/delete', methods=['POST'])
+@admin_required
+def admin_adsense_delete(ad_id):
+    adsense_ad = AdSenseAd.query.get_or_404(ad_id)
+    db.session.delete(adsense_ad)
+    db.session.commit()
+    flash('تم حذف إعلان AdSense', 'success')
+    return redirect(url_for('admin_adsense'))
+
 @app.route('/search')
 def search():
     query = request.args.get('q', '')
@@ -450,5 +563,39 @@ if __name__ == '__main__':
             db.session.add(admin)
             db.session.commit()
             print("Created admin user")
+        
+        # Create sample AdSense ads if not exists
+        if not AdSenseAd.query.first():
+            sample_ads = [
+                {
+                    'name': 'إعلان الرأس الرئيسي',
+                    'ad_unit_id': 'ca-pub-1234567890123456/1234567890',
+                    'ad_code': '<div style="background: #f0f0f0; padding: 20px; text-align: center; border: 1px solid #ddd;">إعلان تجريبي - الرأس</div>',
+                    'placement': 'header',
+                    'page_location': 'home',
+                    'width': 728,
+                    'height': 90,
+                    'responsive': True,
+                    'is_active': True
+                },
+                {
+                    'name': 'إعلان المحتوى',
+                    'ad_unit_id': 'ca-pub-1234567890123456/0987654321',
+                    'ad_code': '<div style="background: #f0f0f0; padding: 20px; text-align: center; border: 1px solid #ddd;">إعلان تجريبي - المحتوى</div>',
+                    'placement': 'content',
+                    'page_location': 'all',
+                    'width': 336,
+                    'height': 280,
+                    'responsive': True,
+                    'is_active': True
+                }
+            ]
+            
+            for ad_data in sample_ads:
+                adsense_ad = AdSenseAd(**ad_data)
+                db.session.add(adsense_ad)
+            
+            db.session.commit()
+            print("Created sample AdSense ads")
     
     app.run(host='0.0.0.0', port=5000, debug=True)

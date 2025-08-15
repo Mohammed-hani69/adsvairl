@@ -10,6 +10,7 @@ Frontend: Pure HTML, CSS, JavaScript - COMPLETED MIGRATION from React
 Technology stack: Flask + Jinja2 templates + vanilla JS + PostgreSQL
 Architecture: Fully converted to Flask-based application (August 15, 2025)
 Status: COMPLETED - All React/Node.js components removed, Flask running successfully on port 5000
+AdSense Integration: COMPLETED - Full AdSense management system with remote dashboard (August 15, 2025)
 
 # System Architecture
 
@@ -31,14 +32,16 @@ Status: COMPLETED - All React/Node.js components removed, Flask running successf
 
 ## Data Storage Solutions
 - **Database**: PostgreSQL with Flask-SQLAlchemy ORM
-- **Schema**: Relational schema with users, categories, ads, countries, states, and cities tables
+- **Schema**: Relational schema with users, categories, ads, countries, states, cities, and adsense_ad tables
 - **Migrations**: Flask-SQLAlchemy migrations with schema evolution support
 - **File Storage**: Local file system storage for uploaded images in uploads/ directory
+- **AdSense Storage**: Database storage for ad unit configurations and placement settings
 
 ## Authentication and Authorization
 - **Current State**: Temporary user system (placeholder implementation)
-- **Admin Features**: Role-based access control with admin panel for ad moderation
+- **Admin Features**: Role-based access control with admin panel for ad moderation and AdSense management
 - **Session Management**: Prepared for session-based authentication with connect-pg-simple for PostgreSQL sessions
+- **AdSense Management**: Complete admin dashboard for managing ad placements remotely
 
 ## External Dependencies
 - **Database**: Neon Database (PostgreSQL) for production data persistence
