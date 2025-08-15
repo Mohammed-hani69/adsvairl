@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, s
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from functools import wraps
 import os
 from datetime import datetime
 import uuid
@@ -24,7 +25,7 @@ class User(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
     phone = db.Column(db.String(20))
     is_admin = db.Column(db.Boolean, default=False)
     is_vip = db.Column(db.Boolean, default=False)
@@ -108,13 +109,7 @@ def home():
                          featured_ads=featured_ads, 
                          recent_ads=recent_ads)
 
-@app.route('/category/<category_id>')
-def category_ads(category_id):
-    category = Category.query.get_or_404(category_id)
-    ads = Ad.query.filter_by(category_id=category_id, is_approved=True, is_active=True).order_by(Ad.created_at.desc()).all()
-    countries = Country.query.filter_by(is_active=True).all()
-    
-    return render_template('category.html', category=category, ads=ads, countries=countries)
+
 
 @app.route('/ad/<ad_id>')
 def ad_details(ad_id):
@@ -139,6 +134,17 @@ def add_ad():
     categories = Category.query.filter_by(is_active=True).all()
     countries = Country.query.filter_by(is_active=True).all()
     return render_template('add_ad.html', categories=categories, countries=countries)
+
+@app.route('/api/categories')
+def get_categories():
+    categories = Category.query.filter_by(is_active=True).all()
+    return jsonify([{
+        'id': cat.id,
+        'name': cat.name,
+        'name_en': cat.name_en,
+        'icon': cat.icon,
+        'color': cat.color
+    } for cat in categories])
 
 @app.route('/api/states/<country_id>')
 def get_states(country_id):
@@ -192,7 +198,7 @@ def create_ad():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/category/<category_id>')
-def category_ads(category_id):
+def category_view(category_id):
     category = Category.query.get_or_404(category_id)
     ads = Ad.query.filter_by(category_id=category_id, is_approved=True, is_active=True).order_by(Ad.created_at.desc()).all()
     countries = Country.query.filter_by(is_active=True).all()
@@ -203,6 +209,171 @@ def category_ads(category_id):
 def become_vip():
     countries = Country.query.filter_by(is_active=True).all()
     return render_template('become_vip.html', countries=countries)
+
+# Admin authentication decorator
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'admin_id' not in session:
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Admin routes
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        admin = User.query.filter_by(email=email, is_admin=True).first()
+        
+        if admin and check_password_hash(admin.password_hash, password):
+            session['admin_id'] = admin.id
+            flash('تم تسجيل الدخول بنجاح', 'success')
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('بيانات الدخول غير صحيحة', 'error')
+    
+    return render_template('admin/login.html')
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('admin_id', None)
+    flash('تم تسجيل الخروج بنجاح', 'success')
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin')
+@admin_required
+def admin_dashboard():
+    # Get statistics
+    total_ads = Ad.query.count()
+    pending_ads = Ad.query.filter_by(is_approved=False).count()
+    total_users = User.query.filter_by(is_admin=False).count()
+    featured_ads = Ad.query.filter_by(is_featured=True).count()
+    
+    # Get recent ads
+    recent_ads = Ad.query.order_by(Ad.created_at.desc()).limit(10).all()
+    
+    return render_template('admin/dashboard.html', 
+                         total_ads=total_ads,
+                         pending_ads=pending_ads,
+                         total_users=total_users,
+                         featured_ads=featured_ads,
+                         recent_ads=recent_ads)
+
+@app.route('/admin/ads')
+@admin_required
+def admin_ads():
+    page = request.args.get('page', 1, type=int)
+    status = request.args.get('status', 'all')
+    
+    query = Ad.query
+    
+    if status == 'pending':
+        query = query.filter_by(is_approved=False)
+    elif status == 'approved':
+        query = query.filter_by(is_approved=True)
+    elif status == 'featured':
+        query = query.filter_by(is_featured=True)
+    
+    ads = query.order_by(Ad.created_at.desc()).paginate(
+        page=page, per_page=20, error_out=False)
+    
+    return render_template('admin/ads.html', ads=ads, status=status)
+
+@app.route('/admin/ads/<ad_id>/approve', methods=['POST'])
+@admin_required
+def approve_ad(ad_id):
+    ad = Ad.query.get_or_404(ad_id)
+    ad.is_approved = True
+    db.session.commit()
+    flash('تم الموافقة على الإعلان', 'success')
+    return redirect(url_for('admin_ads'))
+
+@app.route('/admin/ads/<ad_id>/reject', methods=['POST'])
+@admin_required
+def reject_ad(ad_id):
+    ad = Ad.query.get_or_404(ad_id)
+    ad.is_approved = False
+    ad.is_active = False
+    db.session.commit()
+    flash('تم رفض الإعلان', 'success')
+    return redirect(url_for('admin_ads'))
+
+@app.route('/admin/ads/<ad_id>/feature', methods=['POST'])
+@admin_required
+def feature_ad(ad_id):
+    ad = Ad.query.get_or_404(ad_id)
+    ad.is_featured = not ad.is_featured
+    db.session.commit()
+    status = 'إزالة التمييز' if not ad.is_featured else 'تمييز'
+    flash(f'تم {status} الإعلان', 'success')
+    return redirect(url_for('admin_ads'))
+
+@app.route('/admin/ads/<ad_id>/delete', methods=['POST'])
+@admin_required
+def delete_ad(ad_id):
+    ad = Ad.query.get_or_404(ad_id)
+    
+    # Delete associated images
+    for image in ad.images or []:
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], image)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+    
+    db.session.delete(ad)
+    db.session.commit()
+    flash('تم حذف الإعلان', 'success')
+    return redirect(url_for('admin_ads'))
+
+@app.route('/admin/categories')
+@admin_required
+def admin_categories():
+    categories = Category.query.all()
+    return render_template('admin/categories.html', categories=categories)
+
+@app.route('/admin/categories/add', methods=['POST'])
+@admin_required
+def add_category():
+    name = request.form.get('name')
+    name_en = request.form.get('name_en')
+    icon = request.form.get('icon')
+    color = request.form.get('color')
+    
+    category = Category(name=name, name_en=name_en, icon=icon, color=color)
+    db.session.add(category)
+    db.session.commit()
+    
+    flash('تم إضافة القسم بنجاح', 'success')
+    return redirect(url_for('admin_categories'))
+
+@app.route('/admin/users')
+@admin_required
+def admin_users():
+    users = User.query.filter_by(is_admin=False).all()
+    return render_template('admin/users.html', users=users)
+
+@app.route('/search')
+def search():
+    query = request.args.get('q', '')
+    category_id = request.args.get('category')
+    
+    ads_query = Ad.query.filter_by(is_approved=True, is_active=True)
+    
+    if query:
+        ads_query = ads_query.filter(
+            Ad.title.contains(query) | Ad.description.contains(query)
+        )
+    
+    if category_id:
+        ads_query = ads_query.filter_by(category_id=category_id)
+    
+    ads = ads_query.order_by(Ad.created_at.desc()).all()
+    categories = Category.query.filter_by(is_active=True).all()
+    
+    return render_template('search.html', ads=ads, categories=categories, 
+                         query=query, selected_category=category_id)
 
 if __name__ == '__main__':
     with app.app_context():
@@ -264,5 +435,17 @@ if __name__ == '__main__':
             db.session.add(user)
             db.session.commit()
             print("Created default user")
+        
+        # Create admin user
+        if not User.query.filter_by(email='hanizezo5@gmail.com').first():
+            admin = User(
+                username='admin',
+                email='hanizezo5@gmail.com',
+                password_hash=generate_password_hash('zxc65432'),
+                is_admin=True
+            )
+            db.session.add(admin)
+            db.session.commit()
+            print("Created admin user")
     
     app.run(host='0.0.0.0', port=5000, debug=True)

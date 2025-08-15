@@ -1,0 +1,172 @@
+{% extends "admin/base.html" %}
+
+{% block title %}لوحة التحكم{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">لوحة التحكم</h1>
+    <p class="text-gray-600">مرحباً بك في لوحة تحكم الأدمن</p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="flex items-center">
+            <div class="p-3 bg-blue-100 rounded-full">
+                <i class="fas fa-bullhorn text-2xl text-blue-600"></i>
+            </div>
+            <div class="mr-4">
+                <h3 class="text-sm font-medium text-gray-500">إجمالي الإعلانات</h3>
+                <p class="text-2xl font-bold text-gray-800">{{ total_ads }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="flex items-center">
+            <div class="p-3 bg-yellow-100 rounded-full">
+                <i class="fas fa-clock text-2xl text-yellow-600"></i>
+            </div>
+            <div class="mr-4">
+                <h3 class="text-sm font-medium text-gray-500">في انتظار الموافقة</h3>
+                <p class="text-2xl font-bold text-gray-800">{{ pending_ads }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="flex items-center">
+            <div class="p-3 bg-green-100 rounded-full">
+                <i class="fas fa-users text-2xl text-green-600"></i>
+            </div>
+            <div class="mr-4">
+                <h3 class="text-sm font-medium text-gray-500">المستخدمون</h3>
+                <p class="text-2xl font-bold text-gray-800">{{ total_users }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="flex items-center">
+            <div class="p-3 bg-purple-100 rounded-full">
+                <i class="fas fa-star text-2xl text-purple-600"></i>
+            </div>
+            <div class="mr-4">
+                <h3 class="text-sm font-medium text-gray-500">الإعلانات المميزة</h3>
+                <p class="text-2xl font-bold text-gray-800">{{ featured_ads }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">إجراءات سريعة</h2>
+        <div class="space-y-3">
+            <a href="{{ url_for('admin_ads', status='pending') }}" class="flex items-center justify-between p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors">
+                <div class="flex items-center">
+                    <i class="fas fa-clock text-yellow-600 mr-3"></i>
+                    <span>مراجعة الإعلانات المعلقة</span>
+                </div>
+                <span class="bg-yellow-200 text-yellow-800 text-xs px-2 py-1 rounded-full">{{ pending_ads }}</span>
+            </a>
+            
+            <a href="{{ url_for('admin_categories') }}" class="flex items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                <i class="fas fa-tags text-blue-600 mr-3"></i>
+                <span>إدارة الأقسام</span>
+            </a>
+            
+            <a href="{{ url_for('admin_users') }}" class="flex items-center p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+                <i class="fas fa-users text-green-600 mr-3"></i>
+                <span>إدارة المستخدمين</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">إحصائيات سريعة</h2>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">معدل الموافقة على الإعلانات</span>
+                <span class="font-bold text-green-600">{{ "%.1f"|format((total_ads - pending_ads) / total_ads * 100 if total_ads > 0 else 0) }}%</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">الإعلانات المميزة</span>
+                <span class="font-bold text-purple-600">{{ "%.1f"|format(featured_ads / total_ads * 100 if total_ads > 0 else 0) }}%</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">إعلانات اليوم</span>
+                <span class="font-bold text-blue-600">{{ recent_ads|length }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Ads -->
+<div class="bg-white rounded-xl shadow-lg p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-gray-800">أحدث الإعلانات</h2>
+        <a href="{{ url_for('admin_ads') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+            عرض الكل <i class="fas fa-arrow-left mr-1"></i>
+        </a>
+    </div>
+
+    {% if recent_ads %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-gray-200">
+                    <th class="text-right py-3 px-4 font-semibold text-gray-700">العنوان</th>
+                    <th class="text-right py-3 px-4 font-semibold text-gray-700">القسم</th>
+                    <th class="text-right py-3 px-4 font-semibold text-gray-700">السعر</th>
+                    <th class="text-right py-3 px-4 font-semibold text-gray-700">الحالة</th>
+                    <th class="text-right py-3 px-4 font-semibold text-gray-700">التاريخ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ad in recent_ads %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-3 px-4">
+                        <div class="flex items-center">
+                            {% if ad.images and ad.images|length > 0 %}
+                            <img src="/static/uploads/{{ ad.images[0] }}" alt="{{ ad.title }}" 
+                                 class="w-10 h-10 object-cover rounded-lg mr-3">
+                            {% else %}
+                            <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-image text-gray-400"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <p class="font-medium text-gray-800">{{ ad.title[:50] }}{% if ad.title|length > 50 %}...{% endif %}</p>
+                                <p class="text-sm text-gray-500">{{ ad.user.username }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 text-gray-600">{{ ad.category.name }}</td>
+                    <td class="py-3 px-4 font-medium text-gray-800">{{ "{:,.0f}".format(ad.price) }} {{ ad.currency }}</td>
+                    <td class="py-3 px-4">
+                        {% if ad.is_approved %}
+                            {% if ad.is_featured %}
+                                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">مميز</span>
+                            {% else %}
+                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">موافق عليه</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">معلق</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-gray-500 text-sm">{{ ad.created_at.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-8 text-gray-500">
+        <i class="fas fa-inbox text-4xl mb-4"></i>
+        <p>لا توجد إعلانات</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

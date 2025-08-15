@@ -1,0 +1,197 @@
+{% extends "admin/base.html" %}
+
+{% block title %}إدارة الإعلانات{% endblock %}
+{% block page_title %}إدارة الإعلانات{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-800">إدارة الإعلانات</h1>
+        <div class="flex items-center space-x-4 rtl:space-x-reverse">
+            <!-- Filter Buttons -->
+            <div class="flex bg-white rounded-lg shadow-sm border border-gray-200">
+                <a href="{{ url_for('admin_ads', status='all') }}" 
+                   class="px-4 py-2 text-sm font-medium {% if status == 'all' %}bg-blue-600 text-white{% else %}text-gray-700 hover:bg-gray-50{% endif %} rounded-r-lg">
+                    الكل
+                </a>
+                <a href="{{ url_for('admin_ads', status='pending') }}" 
+                   class="px-4 py-2 text-sm font-medium {% if status == 'pending' %}bg-yellow-600 text-white{% else %}text-gray-700 hover:bg-gray-50{% endif %} border-r border-gray-200">
+                    معلق
+                </a>
+                <a href="{{ url_for('admin_ads', status='approved') }}" 
+                   class="px-4 py-2 text-sm font-medium {% if status == 'approved' %}bg-green-600 text-white{% else %}text-gray-700 hover:bg-gray-50{% endif %} border-r border-gray-200">
+                    موافق عليه
+                </a>
+                <a href="{{ url_for('admin_ads', status='featured') }}" 
+                   class="px-4 py-2 text-sm font-medium {% if status == 'featured' %}bg-purple-600 text-white{% else %}text-gray-700 hover:bg-gray-50{% endif %} rounded-l-lg border-r border-gray-200">
+                    مميز
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ads Table -->
+<div class="bg-white rounded-xl shadow-lg overflow-hidden">
+    {% if ads.items %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="text-right py-4 px-6 font-semibold text-gray-700">الإعلان</th>
+                    <th class="text-right py-4 px-6 font-semibold text-gray-700">القسم</th>
+                    <th class="text-right py-4 px-6 font-semibold text-gray-700">السعر</th>
+                    <th class="text-right py-4 px-6 font-semibold text-gray-700">المستخدم</th>
+                    <th class="text-right py-4 px-6 font-semibold text-gray-700">الحالة</th>
+                    <th class="text-right py-4 px-6 font-semibold text-gray-700">التاريخ</th>
+                    <th class="text-center py-4 px-6 font-semibold text-gray-700">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ad in ads.items %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-4 px-6">
+                        <div class="flex items-center">
+                            {% if ad.images and ad.images|length > 0 %}
+                            <img src="/static/uploads/{{ ad.images[0] }}" alt="{{ ad.title }}" 
+                                 class="w-16 h-16 object-cover rounded-lg mr-4">
+                            {% else %}
+                            <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-image text-gray-400"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h3 class="font-medium text-gray-800 mb-1">{{ ad.title[:60] }}{% if ad.title|length > 60 %}...{% endif %}</h3>
+                                <p class="text-sm text-gray-500">{{ ad.description[:80] }}{% if ad.description|length > 80 %}...{% endif %}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-gray-600">{{ ad.category.name }}</td>
+                    <td class="py-4 px-6 font-medium text-gray-800">{{ "{:,.0f}".format(ad.price) }} {{ ad.currency }}</td>
+                    <td class="py-4 px-6 text-gray-600">{{ ad.user.username }}</td>
+                    <td class="py-4 px-6">
+                        {% if ad.is_approved %}
+                            {% if ad.is_featured %}
+                                <span class="bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full font-medium">
+                                    <i class="fas fa-star mr-1"></i>مميز
+                                </span>
+                            {% else %}
+                                <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium">
+                                    <i class="fas fa-check mr-1"></i>موافق عليه
+                                </span>
+                            {% endif %}
+                        {% else %}
+                            <span class="bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full font-medium">
+                                <i class="fas fa-clock mr-1"></i>معلق
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="py-4 px-6 text-gray-500 text-sm">{{ ad.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                            <!-- View Ad -->
+                            <a href="/ad/{{ ad.id }}" target="_blank" 
+                               class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                               title="عرض الإعلان">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            
+                            {% if not ad.is_approved %}
+                            <!-- Approve Ad -->
+                            <form method="POST" action="{{ url_for('approve_ad', ad_id=ad.id) }}" class="inline">
+                                <button type="submit" 
+                                        class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" 
+                                        title="الموافقة على الإعلان">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+                            
+                            <!-- Reject Ad -->
+                            <form method="POST" action="{{ url_for('reject_ad', ad_id=ad.id) }}" class="inline">
+                                <button type="submit" 
+                                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
+                                        title="رفض الإعلان"
+                                        onclick="return confirm('هل أنت متأكد من رفض هذا الإعلان؟')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                            
+                            <!-- Feature/Unfeature Ad -->
+                            <form method="POST" action="{{ url_for('feature_ad', ad_id=ad.id) }}" class="inline">
+                                <button type="submit" 
+                                        class="p-2 {% if ad.is_featured %}text-yellow-600 hover:bg-yellow-50{% else %}text-purple-600 hover:bg-purple-50{% endif %} rounded-lg transition-colors" 
+                                        title="{% if ad.is_featured %}إزالة التمييز{% else %}تمييز الإعلان{% endif %}">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                            </form>
+                            
+                            <!-- Delete Ad -->
+                            <form method="POST" action="{{ url_for('delete_ad', ad_id=ad.id) }}" class="inline">
+                                <button type="submit" 
+                                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
+                                        title="حذف الإعلان"
+                                        onclick="return confirm('هل أنت متأكد من حذف هذا الإعلان؟ لا يمكن التراجع عن هذا الإجراء.')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if ads.pages > 1 %}
+    <div class="px-6 py-4 border-t border-gray-200">
+        <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+                عرض {{ ads.per_page * (ads.page - 1) + 1 }} إلى 
+                {{ ads.per_page * ads.page if ads.page < ads.pages else ads.total }} من 
+                {{ ads.total }} إعلان
+            </div>
+            
+            <div class="flex space-x-2 rtl:space-x-reverse">
+                {% if ads.has_prev %}
+                <a href="{{ url_for('admin_ads', page=ads.prev_num, status=status) }}" 
+                   class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                    السابق
+                </a>
+                {% endif %}
+                
+                {% for page_num in ads.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != ads.page %}
+                        <a href="{{ url_for('admin_ads', page=page_num, status=status) }}" 
+                           class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                            {{ page_num }}
+                        </a>
+                        {% else %}
+                        <span class="px-3 py-2 bg-blue-600 text-white rounded-lg">{{ page_num }}</span>
+                        {% endif %}
+                    {% else %}
+                    <span class="px-3 py-2">...</span>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if ads.has_next %}
+                <a href="{{ url_for('admin_ads', page=ads.next_num, status=status) }}" 
+                   class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                    التالي
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="text-center py-12">
+        <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-600 mb-2">لا توجد إعلانات</h3>
+        <p class="text-gray-500">لم يتم العثور على إعلانات مطابقة للفلتر المحدد</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

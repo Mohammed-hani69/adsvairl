@@ -1,38 +1,38 @@
 # Overview
 
-This is a full-stack classified ads platform built with React, Express, and TypeScript. The application allows users to browse, search, and post classified advertisements across various categories like real estate, cars, jobs, and electronics. It features a modern Arabic-first UI with RTL support, image uploads, admin moderation, and comprehensive search/filtering capabilities.
+This is a full-stack classified ads platform built with Flask (Python) backend and pure HTML/CSS/JavaScript frontend. The application allows users to browse, search, and post classified advertisements across various categories like real estate, cars, jobs, and electronics. It features a modern Arabic-first UI with RTL support, image uploads, admin moderation, and comprehensive search/filtering capabilities.
 
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
-Backend preference: Flask (Python) instead of Node.js/Express
-Frontend preference: Pure HTML, CSS, JavaScript instead of React
+Backend: Flask (Python) - COMPLETED MIGRATION from Node.js/Express
+Frontend: Pure HTML, CSS, JavaScript - COMPLETED MIGRATION from React
 Technology stack: Flask + Jinja2 templates + vanilla JS + PostgreSQL
+Architecture: Fully converted to Flask-based application (August 15, 2025)
 
 # System Architecture
 
 ## Frontend Architecture
-- **Framework**: React with TypeScript using Vite for build tooling and development
-- **Routing**: Wouter for client-side routing with pages for home, ad details, category views, and admin panel
-- **UI Components**: Shadcn/ui component library with Radix UI primitives for accessible components
-- **Styling**: Tailwind CSS with custom CSS variables for theming and RTL (right-to-left) language support
-- **State Management**: TanStack Query (React Query) for server state management and caching
-- **Forms**: React Hook Form with Zod validation for type-safe form handling
+- **Framework**: Pure HTML5 with Jinja2 templating engine
+- **Styling**: Bootstrap 5 + Custom CSS with Arabic-first design and RTL support
+- **JavaScript**: Vanilla JavaScript with modern ES6+ features
+- **UI Components**: Custom CSS components with Font Awesome icons
+- **Forms**: Standard HTML forms with JavaScript validation and AJAX submission
 - **Internationalization**: Arabic-first design with Cairo font family and RTL layout support
 
 ## Backend Architecture
-- **Runtime**: Node.js with Express framework
-- **Language**: TypeScript with ESM modules
-- **API Design**: RESTful API with structured route handling and error middleware
-- **File Uploads**: Multer middleware for handling image uploads with file type validation
-- **Storage Layer**: Abstracted storage interface with in-memory implementation (designed to be swapped with database)
-- **Development**: Hot reloading with Vite integration and request logging middleware
+- **Runtime**: Python 3.11 with Flask framework
+- **Language**: Python with Flask-SQLAlchemy ORM
+- **API Design**: RESTful API with Flask routes and JSON responses
+- **File Uploads**: Werkzeug for handling image uploads with file type validation
+- **Template Engine**: Jinja2 for server-side rendering
+- **Development**: Flask development server with debug mode and auto-reload
 
 ## Data Storage Solutions
-- **Database**: Drizzle ORM configured for PostgreSQL with Neon Database serverless driver
-- **Schema**: Relational schema with users, categories, and ads tables with proper foreign key relationships
-- **Migrations**: Drizzle migrations with schema evolution support
-- **File Storage**: Local file system storage for uploaded images with configurable upload directory
+- **Database**: PostgreSQL with Flask-SQLAlchemy ORM
+- **Schema**: Relational schema with users, categories, ads, countries, states, and cities tables
+- **Migrations**: Flask-SQLAlchemy migrations with schema evolution support
+- **File Storage**: Local file system storage for uploaded images in uploads/ directory
 
 ## Authentication and Authorization
 - **Current State**: Temporary user system (placeholder implementation)

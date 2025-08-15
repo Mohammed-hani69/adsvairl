@@ -1,0 +1,139 @@
+{% extends "admin/base.html" %}
+
+{% block title %}إدارة الأقسام{% endblock %}
+{% block page_title %}إدارة الأقسام{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-800">إدارة الأقسام</h1>
+        <button onclick="openAddModal()" class="btn-primary px-4 py-2 rounded-lg text-white font-semibold">
+            <i class="fas fa-plus mr-2"></i>
+            إضافة قسم جديد
+        </button>
+    </div>
+</div>
+
+<!-- Categories Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    {% for category in categories %}
+    <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+        <div class="text-center">
+            <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" 
+                 style="background-color: {{ category.color }}20;">
+                <i class="{{ category.icon }} text-2xl" style="color: {{ category.color }};"></i>
+            </div>
+            
+            <h3 class="text-lg font-bold text-gray-800 mb-2">{{ category.name }}</h3>
+            <p class="text-sm text-gray-500 mb-4">{{ category.name_en }}</p>
+            
+            <div class="flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                <span class="text-xs px-2 py-1 rounded-full {% if category.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                    {% if category.is_active %}نشط{% else %}غير نشط{% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="flex items-center justify-between text-sm text-gray-500">
+                <span>عدد الإعلانات: {{ category.ads|length }}</span>
+                <div class="flex space-x-2 rtl:space-x-reverse">
+                    <button onclick="editCategory('{{ category.id }}', '{{ category.name }}', '{{ category.name_en }}', '{{ category.icon }}', '{{ category.color }}')" 
+                            class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="toggleCategory('{{ category.id }}')" 
+                            class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-{% if category.is_active %}eye-slash{% else %}eye{% endif %}"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Add Category Modal -->
+<div id="addModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-gray-800">إضافة قسم جديد</h2>
+            <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="{{ url_for('add_category') }}">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">اسم القسم (عربي) *</label>
+                <input type="text" name="name" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="عقارات">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">اسم القسم (إنجليزي) *</label>
+                <input type="text" name="name_en" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="Real Estate">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">الأيقونة *</label>
+                <input type="text" name="icon" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="fas fa-home">
+                <p class="text-xs text-gray-500 mt-1">استخدم أيقونات Font Awesome</p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">اللون *</label>
+                <input type="color" name="color" required value="#3B82F6"
+                       class="w-full h-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="flex space-x-4 rtl:space-x-reverse">
+                <button type="button" onclick="closeAddModal()" 
+                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    إلغاء
+                </button>
+                <button type="submit" 
+                        class="flex-1 btn-primary px-4 py-2 rounded-lg text-white font-semibold">
+                    إضافة القسم
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function openAddModal() {
+        document.getElementById('addModal').classList.remove('hidden');
+    }
+    
+    function closeAddModal() {
+        document.getElementById('addModal').classList.add('hidden');
+    }
+    
+    function editCategory(id, name, nameEn, icon, color) {
+        // For now, just show an alert. You can implement a proper edit modal
+        alert(`تعديل القسم: ${name}\nسيتم إضافة هذه الميزة قريباً`);
+    }
+    
+    function toggleCategory(id) {
+        if (confirm('هل تريد تغيير حالة هذا القسم؟')) {
+            // You can implement the toggle functionality here
+            alert('سيتم إضافة هذه الميزة قريباً');
+        }
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('addModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeAddModal();
+        }
+    });
+</script>
+{% endblock %}

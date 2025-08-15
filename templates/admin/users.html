@@ -1,0 +1,174 @@
+{% extends "admin/base.html" %}
+
+{% block title %}إدارة المستخدمين{% endblock %}
+{% block page_title %}إدارة المستخدمين{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-800">إدارة المستخدمين</h1>
+        <div class="text-sm text-gray-600">
+            إجمالي المستخدمين: {{ users|length }}
+        </div>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="bg-white rounded-xl shadow-lg overflow-hidden">
+    {% if users %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="text-right py-4 px-6 font-semibold text-gray-700">المستخدم</th>
+                    <th class="text-right py-4 px-6 font-semibold text-gray-700">البريد الإلكتروني</th>
+                    <th class="text-right py-4 px-6 font-semibold text-gray-700">رقم الهاتف</th>
+                    <th class="text-right py-4 px-6 font-semibold text-gray-700">نوع العضوية</th>
+                    <th class="text-right py-4 px-6 font-semibold text-gray-700">عدد الإعلانات</th>
+                    <th class="text-right py-4 px-6 font-semibold text-gray-700">تاريخ التسجيل</th>
+                    <th class="text-center py-4 px-6 font-semibold text-gray-700">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-4 px-6">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-800">{{ user.username }}</h3>
+                                <p class="text-sm text-gray-500">ID: {{ user.id[:8] }}...</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-gray-600">{{ user.email }}</td>
+                    <td class="py-4 px-6 text-gray-600">{{ user.phone or 'غير محدد' }}</td>
+                    <td class="py-4 px-6">
+                        {% if user.is_vip %}
+                            <span class="bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full font-medium">
+                                <i class="fas fa-crown mr-1"></i>VIP
+                            </span>
+                        {% else %}
+                            <span class="bg-gray-100 text-gray-800 text-xs px-3 py-1 rounded-full font-medium">
+                                <i class="fas fa-user mr-1"></i>عادي
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="py-4 px-6 text-gray-600">{{ user.ads|length }}</td>
+                    <td class="py-4 px-6 text-gray-500 text-sm">{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                            <!-- View User Ads -->
+                            <button onclick="viewUserAds('{{ user.id }}', '{{ user.username }}')" 
+                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                                    title="عرض إعلانات المستخدم">
+                                <i class="fas fa-bullhorn"></i>
+                            </button>
+                            
+                            <!-- Toggle VIP Status -->
+                            <button onclick="toggleVIP('{{ user.id }}', '{{ user.username }}', {{ user.is_vip|lower }})" 
+                                    class="p-2 {% if user.is_vip %}text-purple-600 hover:bg-purple-50{% else %}text-yellow-600 hover:bg-yellow-50{% endif %} rounded-lg transition-colors" 
+                                    title="{% if user.is_vip %}إزالة VIP{% else %}ترقية إلى VIP{% endif %}">
+                                <i class="fas fa-crown"></i>
+                            </button>
+                            
+                            <!-- Send Message -->
+                            <button onclick="sendMessage('{{ user.id }}', '{{ user.username }}')" 
+                                    class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" 
+                                    title="إرسال رسالة">
+                                <i class="fas fa-envelope"></i>
+                            </button>
+                            
+                            <!-- Block/Unblock User -->
+                            <button onclick="toggleBlock('{{ user.id }}', '{{ user.username }}')" 
+                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
+                                    title="حظر/إلغاء حظر المستخدم">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <i class="fas fa-users text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-600 mb-2">لا يوجد مستخدمون</h3>
+        <p class="text-gray-500">لم يتم تسجيل أي مستخدمين بعد</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- User Ads Modal -->
+<div id="userAdsModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden">
+        <div class="flex items-center justify-between p-6 border-b border-gray-200">
+            <h2 id="modalTitle" class="text-xl font-bold text-gray-800"></h2>
+            <button onclick="closeUserAdsModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div id="modalContent" class="p-6 overflow-y-auto max-h-96">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function viewUserAds(userId, username) {
+        document.getElementById('modalTitle').textContent = `إعلانات ${username}`;
+        document.getElementById('modalContent').innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i><p class="mt-2 text-gray-500">جاري التحميل...</p></div>';
+        document.getElementById('userAdsModal').classList.remove('hidden');
+        
+        // Here you would fetch the user's ads via AJAX
+        // For now, we'll show a placeholder
+        setTimeout(() => {
+            document.getElementById('modalContent').innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-bullhorn text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-600">سيتم عرض إعلانات ${username} هنا</p>
+                    <p class="text-sm text-gray-500 mt-2">هذه الميزة قيد التطوير</p>
+                </div>
+            `;
+        }, 1000);
+    }
+    
+    function closeUserAdsModal() {
+        document.getElementById('userAdsModal').classList.add('hidden');
+    }
+    
+    function toggleVIP(userId, username, isCurrentlyVIP) {
+        const action = isCurrentlyVIP ? 'إزالة VIP من' : 'ترقية إلى VIP';
+        if (confirm(`هل تريد ${action} ${username}؟`)) {
+            alert(`سيتم ${action} ${username}\nهذه الميزة قيد التطوير`);
+        }
+    }
+    
+    function sendMessage(userId, username) {
+        const message = prompt(`أدخل الرسالة التي تريد إرسالها إلى ${username}:`);
+        if (message && message.trim()) {
+            alert(`تم إرسال الرسالة إلى ${username}\nهذه الميزة قيد التطوير`);
+        }
+    }
+    
+    function toggleBlock(userId, username) {
+        if (confirm(`هل تريد حظر/إلغاء حظر ${username}؟`)) {
+            alert(`سيتم تغيير حالة ${username}\nهذه الميزة قيد التطوير`);
+        }
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('userAdsModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeUserAdsModal();
+        }
+    });
+</script>
+{% endblock %}
