@@ -99,6 +99,7 @@
                             {% if not ad.is_approved %}
                             <!-- Approve Ad -->
                             <form method="POST" action="{{ url_for('approve_ad', ad_id=ad.id) }}" class="inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                 <button type="submit" 
                                         class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" 
                                         title="الموافقة على الإعلان">
@@ -108,6 +109,7 @@
                             
                             <!-- Reject Ad -->
                             <form method="POST" action="{{ url_for('reject_ad', ad_id=ad.id) }}" class="inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                 <button type="submit" 
                                         class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
                                         title="رفض الإعلان"
@@ -119,6 +121,7 @@
                             
                             <!-- Feature/Unfeature Ad -->
                             <form method="POST" action="{{ url_for('feature_ad', ad_id=ad.id) }}" class="inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                 <button type="submit" 
                                         class="p-2 {% if ad.is_featured %}text-yellow-600 hover:bg-yellow-50{% else %}text-purple-600 hover:bg-purple-50{% endif %} rounded-lg transition-colors" 
                                         title="{% if ad.is_featured %}إزالة التمييز{% else %}تمييز الإعلان{% endif %}">
@@ -128,6 +131,7 @@
                             
                             <!-- Delete Ad -->
                             <form method="POST" action="{{ url_for('delete_ad', ad_id=ad.id) }}" class="inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                 <button type="submit" 
                                         class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
                                         title="حذف الإعلان"

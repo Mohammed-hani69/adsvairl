@@ -1,0 +1,194 @@
+{% extends "admin/base.html" %}
+
+{% block title %}لوحة تحكم VIP{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-crown text-yellow-500 mr-2"></i>
+            لوحة تحكم VIP
+        </h1>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">إجمالي الاشتراكات</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_subscriptions }}</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <i class="fas fa-users text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">طلبات معلقة</p>
+                    <p class="text-2xl font-bold text-orange-600">{{ pending_subscriptions }}</p>
+                </div>
+                <div class="bg-orange-100 rounded-full p-3">
+                    <i class="fas fa-clock text-orange-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">اشتراكات نشطة</p>
+                    <p class="text-2xl font-bold text-green-600">{{ active_subscriptions }}</p>
+                </div>
+                <div class="bg-green-100 rounded-full p-3">
+                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">إجمالي الباقات</p>
+                    <p class="text-2xl font-bold text-purple-600">{{ total_packages }}</p>
+                </div>
+                <div class="bg-purple-100 rounded-full p-3">
+                    <i class="fas fa-box text-purple-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <a href="{{ url_for('admin_vip_subscriptions') }}" 
+           class="bg-white rounded-lg shadow p-6 hover:bg-gray-50 transition-colors">
+            <div class="flex items-center">
+                <div class="bg-blue-100 rounded-full p-3 mr-4">
+                    <i class="fas fa-list text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800">إدارة الاشتراكات</h3>
+                    <p class="text-sm text-gray-600">عرض ومراجعة طلبات الاشتراك</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ url_for('admin_vip_packages_main') }}" 
+           class="bg-white rounded-lg shadow p-6 hover:bg-gray-50 transition-colors">
+            <div class="flex items-center">
+                <div class="bg-green-100 rounded-full p-3 mr-4">
+                    <i class="fas fa-box text-green-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800">إدارة الباقات</h3>
+                    <p class="text-sm text-gray-600">إضافة وتعديل باقات VIP</p>
+                </div>
+            </div>
+        </a>
+
+
+        <a href="{{ url_for('admin_payment_methods') }}" 
+           class="bg-white rounded-lg shadow p-6 hover:bg-gray-50 transition-colors">
+            <div class="flex items-center">
+                <div class="bg-purple-100 rounded-full p-3 mr-4">
+                    <i class="fas fa-wallet text-purple-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800">إدارة الدفع</h3>
+                    <p class="text-sm text-gray-600">إدارة طرق الدفع المتاحة</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Recent Subscriptions -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-800">آخر طلبات الاشتراك</h2>
+                <a href="{{ url_for('admin_vip_subscriptions') }}" 
+                   class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    عرض الكل
+                </a>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">العميل</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الباقة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">المبلغ</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">طريقة الدفع</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">التاريخ</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for subscription in recent_subscriptions %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">{{ subscription.customer_name }}</div>
+                                <div class="text-sm text-gray-500">{{ subscription.customer_email }}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ subscription.package.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ subscription.payment_amount }} {{ subscription.payment_currency }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ subscription.payment_method }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if subscription.payment_status == 'pending' %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    معلق
+                                </span>
+                            {% elif subscription.payment_status == 'completed' %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    مكتمل
+                                </span>
+                            {% elif subscription.payment_status == 'failed' %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    فشل
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ subscription.created_at.strftime('%Y-%m-%d') }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            {% if subscription.payment_status == 'pending' %}
+                            <div class="flex space-x-2 rtl:space-x-reverse">
+                                <form method="POST" action="{{ url_for('approve_vip_subscription', subscription_id=subscription.id) }}" class="inline">
+                                    <button type="submit" class="text-green-600 hover:text-green-900">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('reject_vip_subscription', subscription_id=subscription.id) }}" class="inline">
+                                    <button type="submit" class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                                <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

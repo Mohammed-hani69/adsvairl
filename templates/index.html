@@ -19,40 +19,115 @@
         </div>
     </section>
 {% endif %}
+
+<!-- Categories and Filters Section -->
+<section class="py-6 md:py-8 bg-white border-b border-gray-200">
+    <div class="container mx-auto px-4">
+        <!-- Categories Icons Row -->
+        <div class="mb-6 md:mb-8">
+            <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-3 md:mb-4 text-center">تصفح حسب الفئة</h3>
+            <div class="relative">
+                <div class="flex overflow-x-auto scrollbar-hide gap-3 md:gap-4 pb-4" id="categoriesScroll">
+                    {% for category in categories %}
+                    <a href="/category/{{ category.id }}" class="flex-shrink-0 group">
+                        <div class="category-card bg-white rounded-lg md:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-4 md:p-6 text-center min-w-[100px] md:min-w-[120px] border-2 border-transparent hover:border-blue-500">
+                            <div class="text-2xl md:text-3xl mb-2 md:mb-3" style="color: {{ category.color }}">
+                                <i class="{{ category.icon }}"></i>
+                            </div>
+                            <h4 class="text-xs md:text-sm font-semibold text-gray-800 group-hover:text-blue-600 leading-tight">{{ category.name }}</h4>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                <!-- Scroll Arrows - Hidden on mobile -->
+                <button onclick="scrollCategories('left')" class="scroll-arrow hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-lg rounded-full p-2 z-10 hover:bg-gray-50">
+                    <i class="fas fa-chevron-left text-gray-600"></i>
+                </button>
+                <button onclick="scrollCategories('right')" class="scroll-arrow hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-lg rounded-full p-2 z-10 hover:bg-gray-50">
+                    <i class="fas fa-chevron-right text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Location Filters -->
+        <div class="location-filters bg-gray-50 rounded-lg md:rounded-xl p-4 md:p-6">
+            <h3 class="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-4 text-center">فلتر حسب الموقع</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                <!-- Country Filter -->
+                <div>
+                    <label class="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">البلد</label>
+                    <select id="countryFilter" class="filter-select w-full px-2 md:px-3 py-2 text-sm md:text-base border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" onchange="updateStates()">
+                        <option value="">جميع البلدان</option>
+                        {% for country in countries %}
+                        <option value="{{ country.id }}" data-name="{{ country.name }}">{{ country.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- State Filter -->
+                <div>
+                    <label class="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">المحافظة</label>
+                    <select id="stateFilter" class="filter-select w-full px-2 md:px-3 py-2 text-sm md:text-base border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" onchange="updateCities()" disabled>
+                        <option value="">اختر المحافظة</option>
+                    </select>
+                </div>
+
+                <!-- City Filter -->
+                <div>
+                    <label class="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">المدينة</label>
+                    <select id="cityFilter" class="filter-select w-full px-2 md:px-3 py-2 text-sm md:text-base border border-gray-300 rounded-md md:rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
+                        <option value="">اختر المدينة</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Search Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-3 mt-4 md:mt-6">
+                <button onclick="searchByLocation()" class="filter-search-btn w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 md:px-8 py-2 md:py-3 rounded-md md:rounded-lg font-bold text-sm md:text-base transition-colors">
+                    <i class="fas fa-search ml-1 md:ml-2"></i>البحث
+                </button>
+                <button onclick="clearFilters()" class="filter-clear-btn w-full sm:w-auto bg-gray-500 hover:bg-gray-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-md md:rounded-lg font-bold text-sm md:text-base transition-colors">
+                    <i class="fas fa-times ml-1 md:ml-2"></i>مسح الفلاتر
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Hero Section with Statistics -->
-<section class="hero-gradient text-white py-20">
+<section class="hero-gradient text-white py-12 md:py-20">
     <div class="container mx-auto px-4 text-center">
         <!-- Main Hero Content -->
-        <div class="bg-blue-600 bg-opacity-90 rounded-3xl p-12 mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4 text-white">
+        <div class="bg-blue-600 bg-opacity-90 rounded-2xl md:rounded-3xl p-6 md:p-12 mb-6 md:mb-8">
+            <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 text-white leading-tight">
                 اكتشف عالم الإعلانات
             </h1>
-            <p class="text-xl md:text-2xl mb-8 text-blue-100">
+            <p class="text-base md:text-xl lg:text-2xl mb-6 md:mb-8 text-blue-100 leading-relaxed">
                 منصة شاملة لجميع احتياجاتك - من العقارات إلى السيارات والوظائف
             </p>
             
             <!-- Statistics -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mb-6 md:mb-8">
                 <div class="text-center">
-                    <div class="text-3xl md:text-4xl font-bold text-yellow-400">+500</div>
-                    <div class="text-blue-100 text-sm">إعلان جديد</div>
+                    <div class="text-2xl md:text-3xl lg:text-4xl font-bold text-yellow-400">+500</div>
+                    <div class="text-blue-100 text-xs md:text-sm">إعلان جديد</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-3xl md:text-4xl font-bold text-yellow-400">12</div>
-                    <div class="text-blue-100 text-sm">مدن رئيسية</div>
+                    <div class="text-2xl md:text-3xl lg:text-4xl font-bold text-yellow-400">12</div>
+                    <div class="text-blue-100 text-xs md:text-sm">مدن رئيسية</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-3xl md:text-4xl font-bold text-yellow-400">+50,000</div>
-                    <div class="text-blue-100 text-sm">مستخدم</div>
+                    <div class="text-2xl md:text-3xl lg:text-4xl font-bold text-yellow-400">+50,000</div>
+                    <div class="text-blue-100 text-xs md:text-sm">مستخدم</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-3xl md:text-4xl font-bold text-yellow-400">+25,000</div>
-                    <div class="text-blue-100 text-sm">إعلان منشور</div>
+                    <div class="text-2xl md:text-3xl lg:text-4xl font-bold text-yellow-400">+25,000</div>
+                    <div class="text-blue-100 text-xs md:text-sm">إعلان منشور</div>
                 </div>
             </div>
             
             <!-- CTA Button -->
-            <a href="/add-ad" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-blue-900 px-8 py-3 rounded-lg font-bold text-lg transition-colors">
+            <a href="/add-ad" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-blue-900 px-6 md:px-8 py-2 md:py-3 rounded-md md:rounded-lg font-bold text-sm md:text-lg transition-colors">
                 انشر إعلانك مجاناً
             </a>
         </div>
@@ -60,52 +135,52 @@
 </section>
 
 <!-- VIP Membership Section -->
-<section class="py-16 bg-gray-50">
+<section class="py-12 md:py-16 bg-gray-50 vip-section">
     <div class="container mx-auto px-4 text-center">
         <div class="max-w-4xl mx-auto">
-            <div class="text-yellow-500 text-4xl mb-4">
+            <div class="text-yellow-500 text-3xl md:text-4xl mb-3 md:mb-4">
                 <i class="fas fa-crown"></i>
             </div>
-            <h2 class="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
+            <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4 text-gray-800 leading-tight">
                 مميزات عضوية VIP التجارية
             </h2>
-            <p class="text-gray-600 mb-12">
+            <p class="text-sm md:text-base text-gray-600 mb-8 md:mb-12 leading-relaxed">
                 اشترك في باقة الأعمال وتمتع بمزايا حصرية تضمن نجاح إعلاناتك وتميزها عن الآخرين
             </p>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <div class="text-yellow-500 text-3xl mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12">
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                    <div class="text-yellow-500 text-2xl md:text-3xl mb-3 md:mb-4">
                         <i class="fas fa-star"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-4 text-gray-800">ميزات VIP</h3>
-                    <p class="text-gray-600 text-sm">
+                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4 text-gray-800">ميزات VIP</h3>
+                    <p class="text-gray-600 text-sm md:text-base leading-relaxed">
                         ميزة إضافية تجعل بياناتك في أعلى صفحات البحث مما يضمن وصولها لعدد أكبر من العملاء
                     </p>
                 </div>
                 
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <div class="text-yellow-500 text-3xl mb-4">
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                    <div class="text-yellow-500 text-2xl md:text-3xl mb-3 md:mb-4">
                         <i class="fas fa-bolt"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-4 text-gray-800">إعلانات مميزة</h3>
-                    <p class="text-gray-600 text-sm">
+                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4 text-gray-800">إعلانات مميزة</h3>
+                    <p class="text-gray-600 text-sm md:text-base leading-relaxed">
                         إعلاناتك ستظهر في المقدمة وبتصميم جذاب أكثر تضمن لك الحصول على أكبر عدد من المشاهدات
                     </p>
                 </div>
                 
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <div class="text-yellow-500 text-3xl mb-4">
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                    <div class="text-yellow-500 text-2xl md:text-3xl mb-3 md:mb-4">
                         <i class="fas fa-chart-line"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-4 text-gray-800">مبيعات أكثر</h3>
-                    <p class="text-gray-600 text-sm">
+                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4 text-gray-800">مبيعات أكثر</h3>
+                    <p class="text-gray-600 text-sm md:text-base leading-relaxed">
                         احصل على زيارات أكثر للمنتجات التجارية لتصل لشريحة أوسع وتحقق مبيعات أعلى
                     </p>
                 </div>
             </div>
             
-            <a href="/become-vip" class="inline-block bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-bold text-lg transition-colors">
+            <a href="/become-vip" class="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 md:px-8 py-2 md:py-3 rounded-md md:rounded-lg font-bold text-sm md:text-lg transition-colors">
                 اشترك الآن في عضوية VIP
             </a>
         </div>
@@ -113,83 +188,159 @@
 </section>
 
 <!-- Featured Ads Section -->
-<section class="py-16 bg-white">
+<section class="py-12 md:py-16 bg-white">
     <div class="container mx-auto px-4">
-        <div class="flex items-center justify-between mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-800">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 md:mb-12">
+            <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-4 sm:mb-0">
                 الإعلانات المميزة
             </h2>
-            <a href="/featured" class="text-blue-600 hover:text-blue-800 font-semibold">
+            <a href="/featured" class="text-blue-600 hover:text-blue-800 font-semibold text-sm md:text-base">
                 عرض الكل <i class="fas fa-arrow-left mr-1"></i>
             </a>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Sample Featured Ad -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-                <div class="relative">
-                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-camera text-gray-400 text-4xl"></i>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+            {% if featured_ads %}
+                {% for ad in featured_ads %}
+                <a href="/ad/{{ ad.id }}/{{ ad.title | slug }}" class="block hover:transform hover:scale-105 transition-all duration-300">
+                    <div class="bg-white rounded-lg md:rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+                        <div class="relative">
+                            {% if ad.images and ad.images|length > 0 %}
+                                <img src="{{ url_for('static', filename='uploads/' + ad.images[0]) }}" 
+                                     alt="{{ ad.title }}" 
+                                     class="w-full h-40 md:h-48 object-cover">
+                            {% else %}
+                                <div class="w-full h-40 md:h-48 bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-image text-gray-400 text-3xl md:text-4xl"></i>
+                                </div>
+                            {% endif %}
+                            <div class="absolute top-3 md:top-4 right-3 md:right-4">`
+                                <span class="bg-blue-600 text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-bold">
+                                    {% if ad.price %}{{ ad.price }} ريال{% else %}للتفاوض{% endif %}
+                                </span>
+                            </div>
+                            <div class="absolute top-3 md:top-4 left-3 md:left-4">
+                                <span class="bg-orange-500 text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-bold">
+                                    مميز
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 md:p-6">
+                            <h3 class="font-bold text-base md:text-lg mb-2 text-gray-800 line-clamp-2">{{ ad.title }}</h3>
+                            <p class="text-gray-600 text-sm md:text-base mb-3 md:mb-4 line-clamp-2">{{ ad.description[:100] }}{% if ad.description|length > 100 %}...{% endif %}</p>
+                            <div class="flex items-center justify-between">
+                                <div class="text-xs md:text-sm text-gray-500">
+                                    <i class="fas fa-map-marker-alt ml-1"></i>
+                                    {{ ad.city.name if ad.city else 'غير محدد' }}
+                                </div>
+                                <div class="text-xs md:text-sm text-gray-500">
+                                    {{ ad.created_at | time_ago }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="absolute top-4 right-4">
-                        <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold">
-                            2,500 ريال
-                        </span>
+                </a>
+                {% endfor %}
+            {% else %}
+                <!-- Sample Featured Ad for when no real ads exist -->
+                <div class="bg-white rounded-lg md:rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+                    <div class="relative">
+                        <div class="w-full h-40 md:h-48 bg-gray-200 flex items-center justify-center">
+                            <i class="fas fa-camera text-gray-400 text-3xl md:text-4xl"></i>
+                        </div>
+                        <div class="absolute top-3 md:top-4 right-3 md:right-4">
+                            <span class="bg-blue-600 text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-bold">
+                                2,500 ريال
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 md:p-6">
+                        <h3 class="font-bold text-base md:text-lg mb-2 text-gray-800 line-clamp-2">لا توجد إعلانات مميزة حالياً</h3>
+                        <p class="text-gray-600 text-sm md:text-base mb-3 md:mb-4 line-clamp-2">ابدأ بإضافة أول إعلان مميز</p>
+                        <div class="text-xs md:text-sm text-gray-500">منذ ساعة واحدة</div>
                     </div>
                 </div>
-                
-                <div class="p-6">
-                    <h3 class="font-bold text-lg mb-2 text-gray-800">شقة للإيجار في الرياض - حي الملز</h3>
-                    <p class="text-gray-600 text-sm mb-4">شقة تمليك أوروبي في حي الملز تتكون من 3 غرف نوم وصالة ومطبخ</p>
-                    <div class="text-sm text-gray-500 mb-4">منذ ساعة واحدة</div>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 </section>
 
-<!-- All Categories Section -->
+<!-- Recent Ads Section -->
 <section class="py-16 bg-gray-50">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">
-            جميع الإعلانات
-        </h2>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 md:mb-12">
+            <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-4 sm:mb-0">
+                أحدث الإعلانات
+            </h2>
+            <a href="/all-ads" class="text-blue-600 hover:text-blue-800 font-semibold text-sm md:text-base">
+                عرض الكل <i class="fas fa-arrow-left mr-1"></i>
+            </a>
+        </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Sample Regular Ads -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-                <div class="relative">
-                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-camera text-gray-400 text-4xl"></i>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {% if recent_ads %}
+                {% for ad in recent_ads %}
+                <a href="/ad/{{ ad.id }}/{{ ad.title | slug }}" class="block hover:transform hover:scale-105 transition-all duration-300">
+                    <div class="bg-white rounded-lg md:rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+                        <div class="relative">
+                            {% if ad.images and ad.images|length > 0 %}
+                                <img src="{{ url_for('static', filename='uploads/' + ad.images[0]) }}" 
+                                     alt="{{ ad.title }}" 
+                                     class="w-full h-40 md:h-48 object-cover">
+                            {% else %}
+                                <div class="w-full h-40 md:h-48 bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-image text-gray-400 text-3xl md:text-4xl"></i>
+                                </div>
+                            {% endif %}
+                            {% if ad.price %}
+                                <div class="absolute top-3 md:top-4 right-3 md:right-4">
+                                    <span class="bg-blue-600 text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-bold">
+                                        {{ ad.price }} ريال
+                                    </span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="p-4 md:p-6">
+                            <h3 class="font-bold text-base md:text-lg mb-2 text-gray-800 line-clamp-2">{{ ad.title }}</h3>
+                            <p class="text-gray-600 text-sm md:text-base mb-3 md:mb-4 line-clamp-2">{{ ad.description[:100] }}{% if ad.description|length > 100 %}...{% endif %}</p>
+                            <div class="flex items-center justify-between">
+                                <div class="text-xs md:text-sm text-gray-500">
+                                    <i class="fas fa-map-marker-alt ml-1"></i>
+                                    {{ ad.city.name if ad.city else 'غير محدد' }}
+                                </div>
+                                <div class="text-xs md:text-sm text-gray-500">
+                                    <i class="fas fa-eye ml-1"></i>
+                                    {{ ad.views_count }} مشاهدة
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <!-- Sample ads when no real ads exist -->
+                <div class="bg-white rounded-lg md:rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                    <div class="relative">
+                        <div class="w-full h-40 md:h-48 bg-gray-200 flex items-center justify-center">
+                            <i class="fas fa-camera text-gray-400 text-3xl md:text-4xl"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 md:p-6">
+                        <h3 class="font-bold text-base md:text-lg mb-2 text-gray-800">لا توجد إعلانات حالياً</h3>
+                        <p class="text-gray-600 text-sm md:text-base mb-3 md:mb-4">كن أول من ينشر إعلان جديد</p>
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs md:text-sm text-gray-500">مرحباً بك</div>
+                            <a href="/add-ad" class="text-blue-600 hover:text-blue-800 font-semibold text-xs md:text-sm">
+                                أضف إعلان
+                            </a>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="p-6">
-                    <h3 class="font-bold text-lg mb-2 text-gray-800">شقة للإيجار في الرياض - حي الياسمين</h3>
-                    <p class="text-gray-600 text-sm mb-4">شقة تمليك أوروبي في حي الياسمين تتكون من 3 غرف نوم وصالة ومطبخ</p>
-                    <div class="flex items-center justify-between">
-                        <div class="text-sm text-gray-500">منذ ساعة واحدة</div>
-                        <div class="font-bold text-blue-600">2,600 ريال</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-                <div class="relative">
-                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-camera text-gray-400 text-4xl"></i>
-                    </div>
-                </div>
-                
-                <div class="p-6">
-                    <h3 class="font-bold text-lg mb-2 text-gray-800">سيارة للبيع - هونداي النترا 2020</h3>
-                    <p class="text-gray-600 text-sm mb-4">سيارة هونداي النترا موديل 2020 ممشى قليل حالة ممتازة</p>
-                    <div class="flex items-center justify-between">
-                        <div class="text-sm text-gray-500">منذ ساعتين</div>
-                        <div class="font-bold text-blue-600">950,000 ريال</div>
-                    </div>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 </section>
@@ -226,10 +377,308 @@
     </section>
 {% endif %}
 
+<script>
+// Categories scrolling functionality
+function scrollCategories(direction) {
+    const container = document.getElementById('categoriesScroll');
+    const scrollAmount = 200;
+    
+    if (direction === 'left') {
+        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    } else {
+        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+}
+
+// Location filter data
+const statesData = {{ states|tojson }};
+const citiesData = {{ cities|tojson }};
+
+// Update states based on selected country
+function updateStates() {
+    const countrySelect = document.getElementById('countryFilter');
+    const stateSelect = document.getElementById('stateFilter');
+    const citySelect = document.getElementById('cityFilter');
+    
+    const selectedCountryId = countrySelect.value;
+    
+    // Clear and disable state and city selects
+    stateSelect.innerHTML = '<option value="">اختر المحافظة</option>';
+    citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+    citySelect.disabled = true;
+    
+    if (selectedCountryId) {
+        stateSelect.disabled = false;
+        
+        // Filter states by country
+        const countryStates = statesData.filter(state => state.country_id === selectedCountryId);
+        
+        countryStates.forEach(state => {
+            const option = document.createElement('option');
+            option.value = state.id;
+            option.textContent = state.name;
+            stateSelect.appendChild(option);
+        });
+    } else {
+        stateSelect.disabled = true;
+    }
+}
+
+// Update cities based on selected state
+function updateCities() {
+    const stateSelect = document.getElementById('stateFilter');
+    const citySelect = document.getElementById('cityFilter');
+    
+    const selectedStateId = stateSelect.value;
+    
+    // Clear city select
+    citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+    
+    if (selectedStateId) {
+        citySelect.disabled = false;
+        
+        // Filter cities by state
+        const stateCities = citiesData.filter(city => city.state_id === selectedStateId);
+        
+        stateCities.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city.id;
+            option.textContent = city.name;
+            citySelect.appendChild(option);
+        });
+    } else {
+        citySelect.disabled = true;
+    }
+}
+
+// Search by location
+function searchByLocation() {
+    const countryId = document.getElementById('countryFilter').value;
+    const stateId = document.getElementById('stateFilter').value;
+    const cityId = document.getElementById('cityFilter').value;
+    
+    let searchUrl = '/search?';
+    const params = [];
+    
+    if (countryId) params.push(`country_id=${countryId}`);
+    if (stateId) params.push(`state_id=${stateId}`);
+    if (cityId) params.push(`city_id=${cityId}`);
+    
+    if (params.length > 0) {
+        searchUrl += params.join('&');
+        window.location.href = searchUrl;
+    } else {
+        alert('يرجى اختيار موقع للبحث');
+    }
+}
+
+// Clear all filters
+function clearFilters() {
+    document.getElementById('countryFilter').value = '';
+    document.getElementById('stateFilter').innerHTML = '<option value="">اختر المحافظة</option>';
+    document.getElementById('stateFilter').disabled = true;
+    document.getElementById('cityFilter').innerHTML = '<option value="">اختر المدينة</option>';
+    document.getElementById('cityFilter').disabled = true;
+}
+
+// Hide scroll arrows if not needed
+function checkScrollArrows() {
+    const container = document.getElementById('categoriesScroll');
+    const leftArrow = container.parentElement.querySelector('button[onclick*="left"]');
+    const rightArrow = container.parentElement.querySelector('button[onclick*="right"]');
+    
+    if (container.scrollWidth <= container.clientWidth) {
+        leftArrow.style.display = 'none';
+        rightArrow.style.display = 'none';
+    } else {
+        leftArrow.style.display = 'block';
+        rightArrow.style.display = 'block';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    checkScrollArrows();
+    initTouchScroll();
+    
+    // Check scroll arrows on window resize
+    window.addEventListener('resize', checkScrollArrows);
+});
+
+// Touch scroll support for mobile
+function initTouchScroll() {
+    const container = document.getElementById('categoriesScroll');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    // Mouse events
+    container.addEventListener('mousedown', (e) => {
+        isDown = true;
+        container.classList.add('active');
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener('mouseleave', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('mouseup', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 2;
+        container.scrollLeft = scrollLeft - walk;
+    });
+
+    // Touch events for mobile
+    container.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener('touchmove', (e) => {
+        if (!startX) return;
+        const x = e.touches[0].pageX - container.offsetLeft;
+        const walk = (x - startX) * 1.5;
+        container.scrollLeft = scrollLeft - walk;
+    });
+
+    container.addEventListener('touchend', () => {
+        startX = null;
+    });
+}
+
+// Enhanced loading states
+function showLoading(element) {
+    element.classList.add('loading');
+    element.style.position = 'relative';
+}
+
+function hideLoading(element) {
+    element.classList.remove('loading');
+}
+
+// Enhanced search with loading
+function searchByLocation() {
+    const countryId = document.getElementById('countryFilter').value;
+    const stateId = document.getElementById('stateFilter').value;
+    const cityId = document.getElementById('cityFilter').value;
+    
+    let searchUrl = '/search?';
+    const params = [];
+    
+    if (countryId) params.push(`country_id=${countryId}`);
+    if (stateId) params.push(`state_id=${stateId}`);
+    if (cityId) params.push(`city_id=${cityId}`);
+    
+    if (params.length > 0) {
+        // Show loading
+        const searchBtn = document.querySelector('.filter-search-btn');
+        showLoading(searchBtn);
+        
+        searchUrl += params.join('&');
+        window.location.href = searchUrl;
+    } else {
+        // Show user-friendly message
+        if (window.innerWidth <= 768) {
+            alert('يرجى اختيار موقع للبحث');
+        } else {
+            // Could implement a nicer toast notification for desktop
+            alert('يرجى اختيار موقع للبحث');
+        }
+    }
+}
+
+// Improved clear filters with animation
+function clearFilters() {
+    const countryFilter = document.getElementById('countryFilter');
+    const stateFilter = document.getElementById('stateFilter');
+    const cityFilter = document.getElementById('cityFilter');
+    
+    // Animate the clearing
+    [countryFilter, stateFilter, cityFilter].forEach(select => {
+        select.style.transition = 'opacity 0.3s ease';
+        select.style.opacity = '0.5';
+    });
+    
+    setTimeout(() => {
+        countryFilter.value = '';
+        stateFilter.innerHTML = '<option value="">اختر المحافظة</option>';
+        stateFilter.disabled = true;
+        cityFilter.innerHTML = '<option value="">اختر المدينة</option>';
+        cityFilter.disabled = true;
+        
+        [countryFilter, stateFilter, cityFilter].forEach(select => {
+            select.style.opacity = '1';
+        });
+    }, 150);
+}
+</script>
+
 {% endblock %}
 
 {% block extra_scripts %}
+<!-- WhatsApp Floating Button -->
+<div class="whatsapp-float">
+    <a href="https://wa.me/201033607749" target="_blank" class="whatsapp-button" title="تواصل معنا عبر واتساب">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+</div>
+
+<style>
+.whatsapp-float {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.whatsapp-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background-color: #25d366;
+    color: white;
+    border-radius: 50%;
+    text-decoration: none;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    font-size: 35px;
+    transition: all 0.3s ease;
+}
+
+.whatsapp-button:hover {
+    background-color: #128C7E;
+    transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+    .whatsapp-button {
+        width: 50px;
+        height: 50px;
+        font-size: 30px;
+    }
+}
+</style>
+
 <script>
+    // Check if VIP section should be visible
+    document.addEventListener('DOMContentLoaded', function() {
+        let vipSection = document.querySelector('.vip-section');
+        if (vipSection && !{{ show_vip_section|default(false)|tojson }}) {
+            vipSection.style.display = 'none';
+        }
+    });
+
     // Add line-clamp utility for text truncation
     const style = document.createElement('style');
     style.textContent = `

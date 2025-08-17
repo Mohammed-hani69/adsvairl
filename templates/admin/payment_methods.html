@@ -1,0 +1,390 @@
+{% extends "admin/base.html" %}
+
+{% block title %}إدارة طرق الدفع{% endblock %}
+
+{% block extra_head %}{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-credit-card text-purple-600 mr-2"></i>
+            إدارة طرق الدفع
+        </h1>
+        <button onclick="showAddMethodModal()" 
+                class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+            <i class="fas fa-plus mr-2"></i>
+            إضافة طريقة دفع
+        </button>
+    </div>
+
+        <!-- Payment Methods Table -->
+
+    <!-- Payment Methods Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">طريقة الدفع</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الدولة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">يتطلب إثبات</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تفاصيل الحساب</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">ترتيب</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for method in payment_methods %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                {% if method.icon %}
+                                    <i class="{{ method.icon }} text-lg text-gray-600 mr-3"></i>
+                                {% endif %}
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">{{ method.name }}</div>
+                                    <div class="text-sm text-gray-500">{{ method.code }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {{ method.country.name }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full {{ 'bg-yellow-100 text-yellow-800' if method.requires_proof else 'bg-gray-100 text-gray-800' }}">
+                                {{ 'نعم' if method.requires_proof else 'لا' }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {% if method.bank_name or method.account_number %}
+                                <div class="space-y-1">
+                                    {% if method.bank_name %}
+                                        <div>البنك: {{ method.bank_name }}</div>
+                                    {% endif %}
+                                    {% if method.account_number %}
+                                        <div>الحساب: {{ method.account_number }}</div>
+                                    {% endif %}
+                                    {% if method.iban %}
+                                        <div class="text-xs text-gray-500">IBAN: {{ method.iban }}</div>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full {{ 'bg-green-100 text-green-800' if method.is_active else 'bg-red-100 text-red-800' }}">
+                                {{ 'نشط' if method.is_active else 'غير نشط' }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {{ method.sort_order }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                <button onclick="editMethod('{{ method.id }}')" 
+                                        class="text-blue-600 hover:text-blue-900">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form method="POST" action="{{ url_for('admin_payment_method_toggle', method_id=method.id) }}" class="inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" 
+                                            class="text-{{ 'red' if method.is_active else 'green' }}-600 hover:text-{{ 'red' if method.is_active else 'green' }}-900">
+                                        <i class="fas fa-{{ 'pause' if method.is_active else 'play' }}"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('admin_payment_method_delete', method_id=method.id) }}" class="inline"
+                                      onsubmit="return confirm('هل أنت متأكد من حذف طريقة الدفع هذه؟ لا يمكن التراجع عن هذا الإجراء.')">
+                                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" 
+                                            class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Payment Method Modal -->
+<div id="addMethodModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6 m-4 max-w-3xl w-full max-h-screen overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h3 id="modalTitle" class="text-xl font-bold text-gray-900">إضافة طريقة دفع جديدة</h3>
+            <button onclick="closeAddMethodModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+                    <form id="paymentMethodForm" method="POST" action="" class="mt-4">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="method_id" id="methodId">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">اسم طريقة الدفع *</label>
+                    <input type="text" name="name" required placeholder="تحويل بنكي، بطاقة ائتمان..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">الاسم بالإنجليزية *</label>
+                    <input type="text" name="name_en" required placeholder="Bank Transfer, Credit Card..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">رمز الطريقة *</label>
+                    <input type="text" name="code" required placeholder="bank_transfer, credit_card..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">الأيقونة</label>
+                    <input type="text" name="icon" placeholder="fas fa-university, fas fa-credit-card..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ترتيب العرض</label>
+                    <input type="number" name="sort_order" min="0" value="0"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">الدولة *</label>
+                <select name="country_id" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                    <option value="">اختر الدولة</option>
+                    {% for country in countries %}
+                    <option value="{{ country.id }}">{{ country.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex items-center">
+                    <input type="checkbox" name="requires_proof" class="mr-2">
+                    <label class="text-sm text-gray-700">يتطلب إثبات تحويل (مثل التحويل البنكي)</label>
+                </div>
+            </div>
+            
+            <!-- Bank Account Details -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <h4 class="font-medium text-gray-800 mb-3">تفاصيل الحساب البنكي (للتحويلات البنكية)</h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">اسم صاحب الحساب</label>
+                        <input type="text" name="account_name" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">اسم البنك</label>
+                        <input type="text" name="bank_name" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">رقم الحساب</label>
+                        <input type="text" name="account_number" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">IBAN</label>
+                        <input type="text" name="iban" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                    <!-- Removed SWIFT Code field as it's not in the backend model -->
+                </div>
+            </div>
+            
+            <!-- Instructions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">تعليمات الدفع (عربي)</label>
+                    <textarea name="instructions" rows="4" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                              placeholder="اكتب تعليمات الدفع باللغة العربية..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">تعليمات الدفع (إنجليزي)</label>
+                    <textarea name="instructions_en" rows="4" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                              placeholder="Write payment instructions in English..."></textarea>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 rtl:space-x-reverse">
+                <button type="button" onclick="closeAddMethodModal()" 
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                    إلغاء
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700">
+                    إضافة طريقة الدفع
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function showAddMethodModal() {
+    // تحديث عنوان النافذة المنبثقة وإعداد النموذج
+    document.getElementById('modalTitle').textContent = 'إضافة طريقة دفع جديدة';
+    const form = document.getElementById('paymentMethodForm');
+    form.action = "{{ url_for('admin_payment_method_add') }}";
+    document.getElementById('methodId').value = '';
+    
+    // إعادة تعيين النموذج وتحديث CSRF token
+    form.reset();
+    const csrfToken = "{{ csrf_token() }}";
+    document.querySelector('input[name="csrf_token"]').value = csrfToken;
+    
+    // إزالة أي رسائل خطأ سابقة
+    form.querySelectorAll('.border-red-500').forEach(el => {
+        el.classList.remove('border-red-500');
+    });
+    
+    // إظهار النافذة المنبثقة
+    document.getElementById('addMethodModal').classList.remove('hidden');
+    
+    // تركيز أول حقل في النموذج
+    form.querySelector('input[name="name"]').focus();
+}
+
+function closeAddMethodModal() {
+    document.getElementById('addMethodModal').classList.add('hidden');
+}
+
+function editMethod(methodId) {
+    // Fetch payment method data
+    fetch(`/api/payment-methods/${methodId}`)
+        .then(response => response.json())
+        .then(method => {
+            // Update form action and title
+            document.getElementById('modalTitle').textContent = 'تعديل طريقة الدفع';
+            document.getElementById('paymentMethodForm').action = "{{ url_for('admin_payment_methods') }}/" + methodId + "/edit";
+            document.getElementById('methodId').value = methodId;
+            
+            // Fill form fields
+            document.querySelector('input[name="name"]').value = method.name;
+            document.querySelector('input[name="name_en"]').value = method.name_en;
+            document.querySelector('input[name="code"]').value = method.code;
+            document.querySelector('input[name="icon"]').value = method.icon || '';
+            document.querySelector('select[name="country_id"]').value = method.country_id;
+            document.querySelector('input[name="requires_proof"]').checked = method.requires_proof;
+            document.querySelector('input[name="sort_order"]').value = method.sort_order;
+            document.querySelector('input[name="account_name"]').value = method.account_name || '';
+            document.querySelector('input[name="bank_name"]').value = method.bank_name || '';
+            document.querySelector('input[name="account_number"]').value = method.account_number || '';
+            document.querySelector('input[name="iban"]').value = method.iban || '';
+            document.querySelector('input[name="swift_code"]').value = method.swift_code || '';
+            document.querySelector('textarea[name="instructions"]').value = method.instructions || '';
+            document.querySelector('textarea[name="instructions_en"]').value = method.instructions_en || '';
+            
+            // Show modal
+            document.getElementById('addMethodModal').classList.remove('hidden');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء جلب بيانات طريقة الدفع');
+        });
+}
+
+// Handle modal closing
+function handleModalClose(event) {
+    const modal = document.getElementById('addMethodModal');
+    // Close on clicking outside
+    if (event.target === modal) {
+        closeAddMethodModal();
+    }
+    // Close on ESC key
+    if (event.type === 'keydown' && event.key === 'Escape') {
+        closeAddMethodModal();
+    }
+}
+
+// Event listeners
+window.addEventListener('click', handleModalClose);
+window.addEventListener('keydown', handleModalClose);
+
+// Auto-generate code from English name for new methods
+document.querySelector('input[name="name_en"]').addEventListener('input', function() {
+    const methodId = document.getElementById('methodId').value;
+    if (!methodId) { // Only auto-generate for new methods
+        const code = this.value.toLowerCase()
+            .replace(/\s+/g, '_')
+            .replace(/[^a-z0-9_]/g, '');
+        document.querySelector('input[name="code"]').value = code;
+    }
+});
+
+// Form validation
+document.getElementById('paymentMethodForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const form = this;
+    const requiredFields = ['name', 'name_en', 'code', 'country_id'];
+    let isValid = true;
+
+    // التحقق من الحقول المطلوبة
+    requiredFields.forEach(field => {
+        const input = form.querySelector(`[name="${field}"]`);
+        if (!input.value.trim()) {
+            isValid = false;
+            input.classList.add('border-red-500');
+        } else {
+            input.classList.remove('border-red-500');
+        }
+    });
+
+    if (!isValid) {
+        alert('يرجى ملء جميع الحقول المطلوبة');
+        return;
+    }
+
+    try {
+        const formData = new FormData(form);
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData
+        });
+
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            const result = await response.json();
+            if (response.ok) {
+                // نجاح العملية
+                window.location.reload();
+            } else {
+                // رسالة خطأ من الخادم
+                throw new Error(result.error || 'حدث خطأ أثناء إضافة طريقة الدفع');
+            }
+        } else {
+            // الاستجابة ليست JSON
+            const text = await response.text();
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                throw new Error('حدث خطأ أثناء إضافة طريقة الدفع');
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert(error.message || 'حدث خطأ أثناء إضافة طريقة الدفع');
+    }
+});
+</script>
+{% endblock %}

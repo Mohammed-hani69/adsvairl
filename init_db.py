@@ -2,7 +2,8 @@
 import os
 from datetime import datetime
 from werkzeug.security import generate_password_hash
-from app import app, db, User, Category, Country, State, City
+from app import app
+from models import db, User, Category, Country, State, City, VIPPackage, VIPSubscription, MerchantStore, SiteSetting
 
 def init_database():
     """Initialize database with tables and sample data"""
@@ -12,6 +13,23 @@ def init_database():
         # Drop all tables and recreate them
         db.drop_all()
         db.create_all()
+        
+        # Initialize site settings
+        site_settings = [
+            {
+                'key': 'show_vip_section',
+                'value': 'true',
+                'description': 'Controls visibility of VIP section on homepage'
+            }
+        ]
+        
+        for setting in site_settings:
+            db_setting = SiteSetting(
+                key=setting['key'],
+                value=setting['value'],
+                description=setting['description']
+            )
+            db.session.add(db_setting)
         
         # Create admin user
         admin_user = User(
@@ -24,6 +42,14 @@ def init_database():
             is_vip=True
         )
         db.session.add(admin_user)
+        
+        # Create admin store
+        admin_store = MerchantStore(
+            owner_id=admin_user.id,
+            name="متجر المشرف",
+            description="المتجر الرسمي للموقع"
+        )
+        db.session.add(admin_store)
         
         # Create default user
         default_user = User(
@@ -95,11 +121,11 @@ def init_database():
         
         # Create countries
         countries = [
-            {'id': 'country-egypt', 'name': 'مصر', 'name_en': 'Egypt', 'code': 'EG', 'currency': 'EGP', 'vip_price': 100.00},
-            {'id': 'country-saudi', 'name': 'السعودية', 'name_en': 'Saudi Arabia', 'code': 'SA', 'currency': 'SAR', 'vip_price': 150.00},
-            {'id': 'country-uae', 'name': 'الإمارات', 'name_en': 'UAE', 'code': 'AE', 'currency': 'AED', 'vip_price': 200.00},
-            {'id': 'country-kuwait', 'name': 'الكويت', 'name_en': 'Kuwait', 'code': 'KW', 'currency': 'KWD', 'vip_price': 50.00},
-            {'id': 'country-qatar', 'name': 'قطر', 'name_en': 'Qatar', 'code': 'QA', 'currency': 'QAR', 'vip_price': 180.00}
+            {'id': 'country-egypt', 'name': 'مصر', 'name_en': 'Egypt', 'code': 'EG', 'currency': 'EGP', 'phone_code': '+20', 'flag': 'eg.png'},
+            {'id': 'country-saudi', 'name': 'السعودية', 'name_en': 'Saudi Arabia', 'code': 'SA', 'currency': 'SAR', 'phone_code': '+966', 'flag': 'sa.png'},
+            {'id': 'country-uae', 'name': 'الإمارات', 'name_en': 'UAE', 'code': 'AE', 'currency': 'AED', 'phone_code': '+971', 'flag': 'ae.png'},
+            {'id': 'country-kuwait', 'name': 'الكويت', 'name_en': 'Kuwait', 'code': 'KW', 'currency': 'KWD', 'phone_code': '+965', 'flag': 'kw.png'},
+            {'id': 'country-qatar', 'name': 'قطر', 'name_en': 'Qatar', 'code': 'QA', 'currency': 'QAR', 'phone_code': '+974', 'flag': 'qa.png'}
         ]
         
         for country_data in countries:
@@ -109,9 +135,9 @@ def init_database():
                 name_en=country_data['name_en'],
                 code=country_data['code'],
                 currency=country_data['currency'],
-                vip_price=country_data['vip_price'],
-                payment_methods=['bank_transfer', 'credit_card'],
-                requires_transfer_proof=True
+                phone_code=country_data['phone_code'],
+                flag=country_data['flag'],
+                is_active=True
             )
             db.session.add(country)
         
@@ -149,12 +175,83 @@ def init_database():
             )
             db.session.add(city)
         
+        # Add VIP packages for UAE
+        print("Adding VIP packages...")
+        uae = Country.query.filter_by(name='الإمارات العربية المتحدة').first()
+        if uae:
+            # Basic VIP Package
+            basic_package = VIPPackage(
+                name='VIP أساسي',
+                name_en='Basic VIP',
+                description='باقة VIP أساسية مع مميزات محدودة',
+                price=99.0,
+                currency='AED',
+                duration_days=30,
+                country_id=uae.id,
+                featured_ads_count=10,
+                priority_support=False,
+                advanced_analytics=False,
+                boost_in_search=False,
+                features={
+                    'max_ads': 10,
+                    'featured_ads': True,
+                    'priority_support': False
+                },
+                is_active=True
+            )
+            db.session.add(basic_package)
+            
+            # Premium VIP Package
+            premium_package = VIPPackage(
+                name='VIP بريميوم',
+                name_en='Premium VIP',
+                description='باقة VIP متقدمة مع جميع المميزات',
+                price=199.0,
+                currency='AED',
+                duration_days=30,
+                country_id=uae.id,
+                featured_ads_count=50,
+                priority_support=True,
+                advanced_analytics=True,
+                boost_in_search=True,
+                features={
+                    'max_ads': 50,
+                    'featured_ads': True,
+                    'priority_support': True,
+                    'boost_in_search': True,
+                    'analytics': True
+                },
+                is_active=True
+            )
+            db.session.add(premium_package)
+            
+            # Payment methods are now handled via the payment_details JSON field in VIPSubscription
+            
+        # Add VIP packages for Saudi Arabia
+        saudi = Country.query.filter_by(name='المملكة العربية السعودية').first()
+        if saudi:
+            # Basic VIP Package for Saudi
+            basic_package_sa = VIPPackage(
+                name='VIP أساسي',
+                description='باقة VIP أساسية للمملكة العربية السعودية',
+                price=120.0,
+                duration_days=30,
+                features={
+                    'max_ads': 10,
+                    'featured_ads': True,
+                    'priority_support': False
+                },
+                is_active=True
+            )
+            db.session.add(basic_package_sa)
+        
         # Commit all data
         db.session.commit()
         
         print("✓ Database initialized successfully!")
         print("✓ Admin user created: hanizezo5@gmail.com / zxc65432")
         print("✓ Sample categories, countries, states, and cities added")
+        print("✓ VIP packages and payment methods added")
 
 if __name__ == '__main__':
     init_database()

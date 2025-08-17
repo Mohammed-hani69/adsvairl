@@ -1,6 +1,6 @@
 <!-- AdSense Ad Component -->
 {% macro render_adsense_ad(placement, page_location='all') %}
-    {% set ads = get_adsense_ads(page_location, placement) %}
+    {% set ads = get_adsense_ads(ad_type=placement) %}
     {% if ads %}
         {% for ad in ads %}
             {% if ad.is_active %}

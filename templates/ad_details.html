@@ -2,121 +2,171 @@
 
 {% block title %}{{ ad.title }}{% endblock %}
 
+{% block extra_head %}
+<style>
+    /* WhatsApp button hover effects */
+    .whatsapp-btn {
+        background: linear-gradient(45deg, #25d366, #128c7e);
+        box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .whatsapp-btn:hover {
+        background: linear-gradient(45deg, #128c7e, #25d366);
+        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    /* Phone button effects */
+    .phone-btn {
+        background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .phone-btn:hover {
+        background: linear-gradient(45deg, #1d4ed8, #3b82f6);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    /* Share button effects */
+    .share-btn {
+        background: linear-gradient(45deg, #6366f1, #4f46e5);
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .share-btn:hover {
+        background: linear-gradient(45deg, #4f46e5, #6366f1);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-8">
+<div class="min-h-screen bg-gray-50 py-4 md:py-8">
     <div class="container mx-auto px-4">
         <!-- Breadcrumb -->
-        <nav class="mb-6">
-            <ol class="flex items-center space-x-2 rtl:space-x-reverse text-sm text-gray-500">
+        <nav class="mb-4 md:mb-6">
+            <ol class="flex items-center space-x-2 rtl:space-x-reverse text-xs md:text-sm text-gray-500">
                 <li><a href="/" class="hover:text-blue-600">الرئيسية</a></li>
-                <li><i class="fas fa-chevron-left mx-2"></i></li>
-                <li><a href="/category/{{ ad.category.id }}" class="hover:text-blue-600">{{ ad.category.name }}</a></li>
-                <li><i class="fas fa-chevron-left mx-2"></i></li>
-                <li class="text-gray-800">{{ ad.title }}</li>
+                <li><i class="fas fa-chevron-left mx-1 md:mx-2 text-xs"></i></li>
+                <li><a href="/category/{{ ad.category.id }}" class="hover:text-blue-600 truncate max-w-20 md:max-w-none">{{ ad.category.name }}</a></li>
+                <li><i class="fas fa-chevron-left mx-1 md:mx-2 text-xs"></i></li>
+                <li class="text-gray-800 truncate max-w-32 md:max-w-none">{{ ad.title }}</li>
             </ol>
         </nav>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
             <!-- Main Content -->
             <div class="lg:col-span-2">
                 <!-- Images Section -->
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+                <div class="bg-white rounded-lg md:rounded-xl shadow-lg overflow-hidden mb-4 md:mb-6">
                     {% if ad.images and ad.images|length > 0 %}
                     <div class="relative">
                         <img id="main-image" src="/static/uploads/{{ ad.images[0] }}" alt="{{ ad.title }}" 
-                             class="w-full h-96 object-cover">
+                             class="w-full h-64 md:h-80 lg:h-96 object-cover">
                         
                         {% if ad.is_featured %}
-                        <div class="absolute top-4 left-4">
-                            <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                                <i class="fas fa-star mr-1"></i>مميز
+                        <div class="absolute top-3 md:top-4 left-3 md:left-4">
+                            <span class="bg-yellow-500 text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-bold">
+                                <i class="fas fa-star ml-1"></i>مميز
                             </span>
                         </div>
                         {% endif %}
                     </div>
                     
                     {% if ad.images|length > 1 %}
-                    <div class="p-4">
-                        <div class="flex gap-2 overflow-x-auto">
+                    <div class="p-3 md:p-4">
+                        <div class="flex gap-2 overflow-x-auto scrollbar-thin">
                             {% for image in ad.images %}
                             <img src="/static/uploads/{{ image }}" alt="صورة {{ loop.index }}" 
-                                 class="w-20 h-20 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 {% if loop.first %}border-blue-500{% endif %}"
+                                 class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-md md:rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 transition-colors {% if loop.first %}border-blue-500{% endif %} flex-shrink-0"
                                  onclick="changeMainImage('/static/uploads/{{ image }}', this)">
                             {% endfor %}
                         </div>
                     </div>
                     {% endif %}
                     {% else %}
-                    <div class="w-full h-96 bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-image text-gray-400 text-6xl"></i>
+                    <div class="w-full h-64 md:h-80 lg:h-96 bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-image text-gray-400 text-4xl md:text-6xl"></i>
                     </div>
                     {% endif %}
                 </div>
 
                 <!-- Ad Details -->
-                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-                    <div class="flex items-start justify-between mb-4">
-                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">{{ ad.title }}</h1>
-                        <div class="price-tag px-4 py-2 rounded-lg text-xl font-bold">
+                <div class="bg-white rounded-lg md:rounded-xl shadow-lg p-4 md:p-6 mb-4 md:mb-6">
+                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3">
+                        <h1 class="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 leading-tight">{{ ad.title }}</h1>
+                        <div class="price-tag px-3 md:px-4 py-2 rounded-lg text-lg md:text-xl font-bold flex-shrink-0">
                             {{ "{:,.0f}".format(ad.price) }} {{ ad.currency }}
                         </div>
                     </div>
                     
-                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
-                        <span><i class="fas fa-tag mr-1"></i>{{ ad.category.name }}</span>
-                        <span><i class="fas fa-map-marker-alt mr-1"></i>{{ ad.city.name if ad.city else ad.country.name }}</span>
-                        <span><i class="fas fa-clock mr-1"></i>{{ ad.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
-                        <span><i class="fas fa-eye mr-1"></i>{{ ad.views_count }} مشاهدة</span>
+                    <div class="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-gray-500 mb-4 md:mb-6">
+                        <span class="flex items-center"><i class="fas fa-tag ml-1"></i>{{ ad.category.name }}</span>
+                        <span class="flex items-center"><i class="fas fa-map-marker-alt ml-1"></i>{{ ad.city.name if ad.city else ad.country.name }}</span>
+                        <span class="flex items-center"><i class="fas fa-clock ml-1"></i>{{ ad.created_at.strftime('%Y-%m-%d') }}</span>
+                        <span class="flex items-center"><i class="fas fa-eye ml-1"></i>{{ ad.views_count }} مشاهدة</span>
                     </div>
                     
                     <div class="prose max-w-none">
-                        <h3 class="text-lg font-semibold mb-3">الوصف</h3>
-                        <p class="text-gray-700 whitespace-pre-line">{{ ad.description }}</p>
+                        <h3 class="text-base md:text-lg font-semibold mb-3">الوصف</h3>
+                        <p class="text-gray-700 whitespace-pre-line text-sm md:text-base leading-relaxed">{{ ad.description }}</p>
                     </div>
                 </div>
 
                 <!-- Contact Information -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-semibold mb-4">معلومات الاتصال</h3>
+                <div class="bg-white rounded-lg md:rounded-xl shadow-lg p-4 md:p-6">
+                    <h3 class="text-base md:text-lg font-semibold mb-4">معلومات الاتصال</h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="flex items-center">
-                            <i class="fas fa-phone text-blue-600 mr-3"></i>
-                            <div>
-                                <span class="text-sm text-gray-500">رقم الهاتف</span>
-                                <p class="font-semibold">{{ ad.contact_phone }}</p>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <i class="fas fa-phone text-blue-600 ml-3 text-lg"></i>
+                            <div class="flex-1">
+                                <span class="text-xs md:text-sm text-gray-500 block">رقم الهاتف</span>
+                                <p class="font-semibold text-sm md:text-base">{{ ad.contact_phone }}</p>
                             </div>
+                            <a href="tel:{{ ad.contact_phone }}" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                                اتصال
+                            </a>
                         </div>
                         
-                        {% if ad.contact_email %}
-                        <div class="flex items-center">
-                            <i class="fas fa-envelope text-blue-600 mr-3"></i>
-                            <div>
-                                <span class="text-sm text-gray-500">البريد الإلكتروني</span>
-                                <p class="font-semibold">{{ ad.contact_email }}</p>
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <i class="fab fa-whatsapp text-green-600 ml-3 text-xl"></i>
+                            <div class="flex-1">
+                                <span class="text-xs md:text-sm text-gray-500 block">واتساب</span>
+                                <p class="font-semibold text-sm md:text-base">{{ ad.contact_phone }}</p>
                             </div>
+                            <a href="https://wa.me/{{ ad.contact_phone | whatsapp_phone }}?text=مرحباً، أود الاستفسار عن إعلانك: {{ ad.title }}" 
+                               target="_blank" 
+                               class="whatsapp-btn px-3 py-2 rounded-lg text-white text-sm">
+                                <i class="fab fa-whatsapp ml-1"></i>
+                                واتساب
+                            </a>
                         </div>
-                        {% endif %}
                     </div>
                     
-                    <div class="flex gap-4 mt-6">
+                    <!-- Action Buttons - Mobile Optimized -->
+                    <div class="flex flex-col sm:flex-row gap-3 mt-6">
                         <a href="tel:{{ ad.contact_phone }}" 
-                           class="btn-primary flex-1 py-3 rounded-lg text-white font-semibold text-center">
-                            <i class="fas fa-phone mr-2"></i>
-                            اتصال
+                           class="phone-btn flex-1 py-3 rounded-lg text-white font-semibold text-center text-sm md:text-base">
+                            <i class="fas fa-phone ml-2"></i>
+                            اتصال الآن
                         </a>
                         
-                        {% if ad.contact_email %}
-                        <a href="mailto:{{ ad.contact_email }}" 
-                           class="bg-gray-600 hover:bg-gray-700 flex-1 py-3 rounded-lg text-white font-semibold text-center transition-colors">
-                            <i class="fas fa-envelope mr-2"></i>
-                            إرسال رسالة
+                        <a href="https://wa.me/{{ ad.contact_phone | whatsapp_phone }}?text=مرحباً، أود الاستفسار عن إعلانك: {{ ad.title }}" 
+                           target="_blank"
+                           class="whatsapp-btn flex-1 py-3 rounded-lg text-white font-semibold text-center text-sm md:text-base">
+                            <i class="fab fa-whatsapp ml-2"></i>
+                            تواصل واتساب
                         </a>
-                        {% endif %}
                         
                         <button onclick="shareAd()" 
-                                class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg text-white font-semibold transition-colors">
-                            <i class="fas fa-share mr-2"></i>
+                                class="share-btn px-4 sm:px-6 py-3 rounded-lg text-white font-semibold text-sm md:text-base">
+                            <i class="fas fa-share ml-2"></i>
                             مشاركة
                         </button>
                     </div>
@@ -124,43 +174,43 @@
             </div>
 
             <!-- Sidebar -->
-            <div class="lg:col-span-1">
+            <div class="lg:col-span-1 order-first lg:order-last">
                 <!-- Safety Tips -->
-                <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-6">
-                    <h3 class="text-lg font-semibold text-yellow-800 mb-3">
-                        <i class="fas fa-shield-alt mr-2"></i>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg md:rounded-xl p-4 md:p-6 mb-4 md:mb-6">
+                    <h3 class="text-base md:text-lg font-semibold text-yellow-800 mb-3">
+                        <i class="fas fa-shield-alt ml-2"></i>
                         نصائح الأمان
                     </h3>
-                    <ul class="text-sm text-yellow-700 space-y-2">
-                        <li><i class="fas fa-check mr-2"></i>تأكد من صحة المنتج قبل الدفع</li>
-                        <li><i class="fas fa-check mr-2"></i>التقي بالبائع في مكان عام</li>
-                        <li><i class="fas fa-check mr-2"></i>لا تدفع مقدماً إلا بضمانات</li>
-                        <li><i class="fas fa-check mr-2"></i>تحقق من هوية البائع</li>
+                    <ul class="text-xs md:text-sm text-yellow-700 space-y-2">
+                        <li class="flex items-start"><i class="fas fa-check ml-2 mt-0.5 flex-shrink-0"></i><span>تأكد من صحة المنتج قبل الدفع</span></li>
+                        <li class="flex items-start"><i class="fas fa-check ml-2 mt-0.5 flex-shrink-0"></i><span>التقي بالبائع في مكان عام</span></li>
+                        <li class="flex items-start"><i class="fas fa-check ml-2 mt-0.5 flex-shrink-0"></i><span>لا تدفع مقدماً إلا بضمانات</span></li>
+                        <li class="flex items-start"><i class="fas fa-check ml-2 mt-0.5 flex-shrink-0"></i><span>تحقق من هوية البائع</span></li>
                     </ul>
                 </div>
 
                 <!-- Similar Ads -->
                 {% if related_ads %}
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-semibold mb-4">إعلانات مشابهة</h3>
+                <div class="bg-white rounded-lg md:rounded-xl shadow-lg p-4 md:p-6">
+                    <h3 class="text-base md:text-lg font-semibold mb-4">إعلانات مشابهة</h3>
                     
-                    <div class="space-y-4">
+                    <div class="space-y-3 md:space-y-4">
                         {% for related_ad in related_ads %}
-                        <a href="/ad/{{ related_ad.id }}" class="block border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <a href="/ad/{{ related_ad.id }}/{{ related_ad.title | slug }}" class="block border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
                             <div class="flex gap-3">
                                 {% if related_ad.images and related_ad.images|length > 0 %}
                                 <img src="/static/uploads/{{ related_ad.images[0] }}" alt="{{ related_ad.title }}" 
-                                     class="w-16 h-16 object-cover rounded-lg">
+                                     class="w-14 h-14 md:w-16 md:h-16 object-cover rounded-lg flex-shrink-0">
                                 {% else %}
-                                <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-image text-gray-400"></i>
+                                <div class="w-14 h-14 md:w-16 md:h-16 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-image text-gray-400 text-sm"></i>
                                 </div>
                                 {% endif %}
                                 
                                 <div class="flex-1 min-w-0">
-                                    <h4 class="font-semibold text-sm text-gray-800 mb-1 truncate">{{ related_ad.title }}</h4>
-                                    <p class="text-blue-600 font-bold text-sm">{{ "{:,.0f}".format(related_ad.price) }} {{ related_ad.currency }}</p>
-                                    <p class="text-xs text-gray-500">{{ related_ad.city.name if related_ad.city else related_ad.country.name }}</p>
+                                    <h4 class="font-semibold text-xs md:text-sm text-gray-800 mb-1 line-clamp-2">{{ related_ad.title }}</h4>
+                                    <p class="text-blue-600 font-bold text-sm md:text-base">{{ "{:,.0f}".format(related_ad.price) }} {{ related_ad.currency }}</p>
+                                    <p class="text-xs text-gray-500 truncate">{{ related_ad.city.name if related_ad.city else related_ad.country.name }}</p>
                                 </div>
                             </div>
                         </a>
@@ -196,13 +246,82 @@
                 title: '{{ ad.title }}',
                 text: '{{ ad.description[:100] }}...',
                 url: window.location.href
-            });
+            }).catch(err => console.log('Error sharing:', err));
         } else {
             // Fallback - copy to clipboard
             navigator.clipboard.writeText(window.location.href).then(() => {
-                alert('تم نسخ رابط الإعلان إلى الحافظة');
+                // Create a toast notification
+                showToast('تم نسخ رابط الإعلان إلى الحافظة');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = window.location.href;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('تم نسخ رابط الإعلان');
             });
         }
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50 text-sm';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(20px)';
+            setTimeout(() => document.body.removeChild(toast), 300);
+        }, 3000);
+    }
+    
+    // Mobile image gallery swipe support
+    let startX = 0;
+    let currentImageIndex = 0;
+    const images = {{ ad.images|tojson if ad.images else '[]' }};
+    
+    if (images.length > 1) {
+        const mainImage = document.getElementById('main-image');
+        
+        mainImage.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+        });
+        
+        mainImage.addEventListener('touchend', (e) => {
+            const endX = e.changedTouches[0].clientX;
+            const diff = startX - endX;
+            
+            if (Math.abs(diff) > 50) { // Minimum swipe distance
+                if (diff > 0 && currentImageIndex < images.length - 1) {
+                    // Swipe left - next image
+                    currentImageIndex++;
+                } else if (diff < 0 && currentImageIndex > 0) {
+                    // Swipe right - previous image
+                    currentImageIndex--;
+                }
+                
+                if (images[currentImageIndex]) {
+                    mainImage.src = '/static/uploads/' + images[currentImageIndex];
+                    updateThumbnailBorder(currentImageIndex);
+                }
+            }
+        });
+    }
+    
+    function updateThumbnailBorder(index) {
+        const thumbnails = document.querySelectorAll('.cursor-pointer');
+        thumbnails.forEach((thumb, i) => {
+            if (i === index) {
+                thumb.classList.remove('border-transparent');
+                thumb.classList.add('border-blue-500');
+            } else {
+                thumb.classList.remove('border-blue-500');
+                thumb.classList.add('border-transparent');
+            }
+        });
     }
 </script>
 {% endblock %}

@@ -2,6 +2,65 @@
 
 {% block title %}كن عضو VIP{% endblock %}
 
+{% block extra_head %}
+<style>
+    .package-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .package-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .package-popular {
+        position: relative;
+        border: 2px solid #fbbf24;
+    }
+    
+    .package-popular::before {
+        content: "الأكثر شعبية";
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+        padding: 5px 20px;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: bold;
+    }
+    
+    .feature-check {
+        color: #10b981;
+    }
+    
+    .feature-cross {
+        color: #ef4444;
+    }
+    
+    .payment-method {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .payment-method:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .payment-method.selected {
+        border-color: #3b82f6;
+        background-color: #dbeafe;
+    }
+    
+    .modal-backdrop {
+        backdrop-filter: blur(5px);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="min-h-screen bg-gray-50 py-12">
     <div class="container mx-auto px-4">
@@ -16,226 +75,186 @@
             </p>
         </div>
 
+        <!-- Country Selection -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">اختر دولتك</h3>
+            <select id="countrySelect" class="w-full md:w-auto px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">اختر الدولة</option>
+                {% for country in countries %}
+                <option value="{{ country.id }}" 
+                        data-currency="{{ country.currency }}"
+                        data-code="{{ country.code }}">{{ country.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Packages Section -->
+        <div id="packagesContainer" class="hidden">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">اختر الباقة المناسبة لك</h2>
+            <div id="packagesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                <!-- Packages will be loaded here -->
+            </div>
+        </div>
+
         <!-- Benefits Section -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             <div class="bg-white rounded-xl shadow-lg p-6 text-center">
                 <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-star text-yellow-600 text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3">إعلانات مميزة</h3>
-                <p class="text-gray-600">اجعل إعلاناتك تظهر في المقدمة وتحصل على مشاهدات أكثر</p>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">إعلانات مميزة</h3>
+                <p class="text-gray-600 text-sm">اجعل إعلاناتك تظهر في المقدمة</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-lg p-6 text-center">
                 <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-chart-line text-blue-600 text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3">إحصائيات متقدمة</h3>
-                <p class="text-gray-600">تتبع أداء إعلاناتك وعدد المشاهدات والاستفسارات</p>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">إحصائيات متقدمة</h3>
+                <p class="text-gray-600 text-sm">تتبع أداء إعلاناتك بدقة</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-lg p-6 text-center">
                 <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-headset text-green-600 text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3">دعم أولوية</h3>
-                <p class="text-gray-600">احصل على دعم فني سريع ومساعدة مخصصة</p>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">دعم أولوية</h3>
+                <p class="text-gray-600 text-sm">احصل على دعم فني سريع</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-lg p-6 text-center">
                 <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-images text-purple-600 text-2xl"></i>
+                    <i class="fas fa-bolt text-purple-600 text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3">صور أكثر</h3>
-                <p class="text-gray-600">أضف حتى 20 صورة لكل إعلان بدلاً من 5 صور فقط</p>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
-                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-infinity text-red-600 text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3">إعلانات لا محدودة</h3>
-                <p class="text-gray-600">انشر عدد لا محدود من الإعلانات دون قيود</p>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
-                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-store text-indigo-600 text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-3">متجر مخصص</h3>
-                <p class="text-gray-600">احصل على صفحة متجر مخصصة باسمك وشعارك</p>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">تعزيز البحث</h3>
+                <p class="text-gray-600 text-sm">ظهور أفضل في نتائج البحث</p>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Pricing Plans -->
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6">اختر الخطة المناسبة لك</h2>
-            <p class="text-gray-600">أسعار تنافسية مع أفضل المزايا</p>
+<!-- Subscription Modal -->
+<div id="subscriptionModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl p-8 m-4 max-w-2xl w-full max-h-screen overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-bold text-gray-900">اشتراك VIP</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
-            {% for country in countries %}
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden {% if loop.index == 2 %}ring-2 ring-yellow-500 transform scale-105{% endif %}">
-                {% if loop.index == 2 %}
-                <div class="bg-yellow-500 text-white text-center py-2 font-bold">
-                    الأكثر شعبية
-                </div>
-                {% endif %}
-                
-                <div class="p-8">
-                    <div class="text-center mb-6">
-                        <h3 class="text-2xl font-bold text-gray-800">{{ country.name }}</h3>
-                        <div class="mt-4">
-                            <span class="text-4xl font-bold text-gray-800">{{ "{:,.0f}".format(country.vip_price) }}</span>
-                            <span class="text-gray-600">{{ country.currency }} / شهر</span>
-                        </div>
-                    </div>
-
-                    <ul class="space-y-3 mb-8">
-                        <li class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span>إعلانات مميزة لا محدودة</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span>متجر مخصص بشعارك</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span>إحصائيات تفصيلية</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span>دعم فني أولوية</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span>حتى 20 صورة لكل إعلان</span>
-                        </li>
-                    </ul>
-
-                    <button class="w-full btn-primary py-3 rounded-lg text-white font-bold" 
-                            onclick="selectCountry('{{ country.id }}', '{{ country.name }}', {{ country.vip_price }}, '{{ country.currency }}')">
-                        اختر هذه الخطة
-                    </button>
-                </div>
+        
+        <form id="subscriptionForm" enctype="multipart/form-data">
+            <!-- Package Details -->
+            <div id="packageDetails" class="bg-blue-50 rounded-lg p-4 mb-6">
+                <!-- Package info will be filled here -->
             </div>
-            {% endfor %}
-        </div>
-
-        <!-- Payment Form -->
-        <div id="payment-form" class="hidden max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8">
-            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">إكمال عملية الاشتراك</h3>
             
-            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-                <div class="flex justify-between items-center">
-                    <span>الخطة المختارة:</span>
-                    <span id="selected-plan" class="font-bold"></span>
-                </div>
-                <div class="flex justify-between items-center mt-2">
-                    <span>السعر:</span>
-                    <span id="selected-price" class="font-bold text-blue-600"></span>
-                </div>
-            </div>
-
-            <form id="vip-form">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">الاسم الكامل *</label>
-                        <input type="text" required
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">رقم الهاتف *</label>
-                        <input type="tel" required
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">البريد الإلكتروني *</label>
-                    <input type="email" required
+            <!-- Customer Information -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">الاسم الكامل *</label>
+                    <input type="text" name="customer_name" required
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">اسم المتجر *</label>
-                    <input type="text" required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                           placeholder="اسم متجرك التجاري">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">رقم الهاتف *</label>
+                    <input type="tel" name="customer_phone" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-
-                <div class="mb-8">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">طريقة الدفع</label>
-                    <div class="space-y-3">
-                        <label class="flex items-center">
-                            <input type="radio" name="payment_method" value="bank_transfer" checked
-                                   class="mr-2">
-                            <span>تحويل بنكي</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="payment_method" value="stripe"
-                                   class="mr-2">
-                            <span>بطاقة ائتمان</span>
-                        </label>
-                    </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">البريد الإلكتروني *</label>
+                    <input type="email" name="customer_email" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-
-                <div class="flex gap-4">
-                    <button type="button" onclick="hidePaymentForm()"
-                            class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50">
-                        إلغاء
-                    </button>
-                    <button type="submit"
-                            class="flex-1 btn-primary px-6 py-3 rounded-lg text-white font-bold">
-                        تأكيد الاشتراك
-                    </button>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">المحافظة *</label>
+                    <select name="state_id" id="stateSelect" required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            disabled>
+                        <option value="">اختر المحافظة</option>
+                    </select>
                 </div>
-            </form>
-        </div>
-
-        <!-- FAQ Section -->
-        <div class="max-w-4xl mx-auto mt-16">
-            <h2 class="text-3xl font-bold text-gray-800 text-center mb-12">الأسئلة الشائعة</h2>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">المدينة *</label>
+                    <select name="city_id" id="citySelect" required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            disabled>
+                        <option value="">اختر المدينة</option>
+                    </select>
+                </div>
+            </div>
             
-            <div class="space-y-4">
-                <div class="bg-white rounded-xl shadow-lg">
-                    <button class="w-full p-6 text-right focus:outline-none" onclick="toggleFaq(this)">
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-gray-800">كيف يمكنني إلغاء الاشتراك؟</span>
-                            <i class="fas fa-chevron-down transform transition-transform"></i>
-                        </div>
-                    </button>
-                    <div class="hidden px-6 pb-6 text-gray-600">
-                        يمكنك إلغاء الاشتراك في أي وقت من خلال لوحة التحكم الخاصة بك أو التواصل مع فريق الدعم
+            <!-- Payment Methods -->
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-gray-700 mb-4">طريقة الدفع *</label>
+                <div id="paymentMethods" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Payment methods will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Payment Details -->
+            <div id="paymentDetails" class="hidden mb-6">
+                <!-- Payment details will be shown based on selected method -->
+            </div>
+            
+            <!-- Bank Transfer Fields -->
+            <div id="bankTransferFields" class="hidden mb-6">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <h4 class="font-semibold text-yellow-800 mb-2">تعليمات التحويل البنكي</h4>
+                    <div id="bankInstructions">
+                        <!-- Bank instructions will be loaded here -->
                     </div>
                 </div>
-
-                <div class="bg-white rounded-xl shadow-lg">
-                    <button class="w-full p-6 text-right focus:outline-none" onclick="toggleFaq(this)">
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-gray-800">هل يمكنني تغيير الخطة؟</span>
-                            <i class="fas fa-chevron-down transform transition-transform"></i>
-                        </div>
-                    </button>
-                    <div class="hidden px-6 pb-6 text-gray-600">
-                        نعم، يمكنك الترقية أو التنزيل بين الخطط في أي وقت
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">رقم العملية/المرجع</label>
+                        <input type="text" name="transfer_reference"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-lg">
-                    <button class="w-full p-6 text-right focus:outline-none" onclick="toggleFaq(this)">
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-gray-800">ما هي طرق الدفع المتاحة؟</span>
-                            <i class="fas fa-chevron-down transform transition-transform"></i>
-                        </div>
-                    </button>
-                    <div class="hidden px-6 pb-6 text-gray-600">
-                        نقبل التحويل البنكي وبطاقات الائتمان والدفع الإلكتروني
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">تاريخ التحويل</label>
+                        <input type="date" name="transfer_date"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">صورة إثبات التحويل *</label>
+                        <input type="file" name="transfer_proof" accept="image/*"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <p class="text-sm text-gray-500 mt-1">يرجى رفع صورة واضحة لإيصال التحويل</p>
                     </div>
                 </div>
             </div>
+            
+            <!-- Submit Button -->
+            <div class="flex justify-end space-x-4 rtl:space-x-reverse">
+                <button type="button" onclick="closeModal()" 
+                        class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    إلغاء
+                </button>
+                <button type="submit" 
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+                    <i class="fas fa-credit-card mr-2"></i>
+                    إرسال طلب الاشتراك
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl p-8 m-4 max-w-md w-full">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-green-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">تم إرسال الطلب بنجاح!</h3>
+            <p class="text-gray-600 mb-6">سيتم مراجعة طلبك من قبل الإدارة خلال 24 ساعة وسيتم إشعارك بالنتيجة.</p>
+            <button onclick="closeSuccessModal()" 
+                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                موافق
+            </button>
         </div>
     </div>
 </div>
@@ -243,32 +262,522 @@
 
 {% block extra_scripts %}
 <script>
-    function selectCountry(countryId, countryName, price, currency) {
-        document.getElementById('selected-plan').textContent = countryName;
-        document.getElementById('selected-price').textContent = `${price.toLocaleString()} ${currency} / شهر`;
-        document.getElementById('payment-form').classList.remove('hidden');
+let selectedCountry = null;
+let selectedPackage = null;
+let selectedPaymentMethod = null;
+let paymentMethods = [];
+
+// State/city dynamic loading
+const stateSelect = document.getElementById('stateSelect');
+const citySelect = document.getElementById('citySelect');
+
+function clearSelect(select, placeholder = 'اختر') {
+    select.innerHTML = `<option value="">${placeholder}</option>`;
+    select.disabled = true;
+}
+
+async function loadStates(countryId) {
+    stateSelect.disabled = true;
+    citySelect.disabled = true;
+    
+    clearSelect(stateSelect, 'جاري تحميل المحافظات...');
+    clearSelect(citySelect);
+    
+    if (!countryId) return;
+    
+    try {
+        const res = await fetch(`/api/states/${countryId}`);
+        if (!res.ok) throw new Error('Failed to fetch states');
         
-        // Scroll to payment form
-        document.getElementById('payment-form').scrollIntoView({ 
-            behavior: 'smooth' 
+        const states = await res.json();
+        if (states.length === 0) {
+            clearSelect(stateSelect, 'لا توجد محافظات متاحة');
+            return;
+        }
+
+        stateSelect.innerHTML = '<option value="">اختر المحافظة</option>';
+        states.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = s.name;
+            stateSelect.appendChild(opt);
+        });
+        
+        // تفعيل قائمة المحافظات
+        stateSelect.disabled = false;
+        
+    } catch (e) { 
+        console.error('Error loading states', e);
+        clearSelect(stateSelect, 'حدث خطأ في تحميل المحافظات');
+    }
+}
+
+async function loadCities(stateId) {
+    citySelect.disabled = true;
+    clearSelect(citySelect, 'جاري تحميل المدن...');
+    
+    if (!stateId) {
+        clearSelect(citySelect);
+        return;
+    }
+    
+    try {
+        const res = await fetch(`/api/cities/${stateId}`);
+        if (!res.ok) throw new Error('Failed to fetch cities');
+        
+        const cities = await res.json();
+        if (cities.length === 0) {
+            clearSelect(citySelect, 'لا توجد مدن متاحة');
+            return;
+        }
+
+        citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+        cities.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name;
+            citySelect.appendChild(opt);
+        });
+        
+        // تفعيل قائمة المدن
+        citySelect.disabled = false;
+        
+    } catch (e) { 
+        console.error('Error loading cities', e);
+        clearSelect(citySelect, 'حدث خطأ في تحميل المدن');
+    }
+}
+
+// Country selection handler
+document.getElementById('countrySelect').addEventListener('change', function() {
+    const countryId = this.value;
+    if (countryId) {
+        selectedCountry = countryId;
+        loadPackages(countryId);
+        loadStates(countryId);
+        document.getElementById('paymentMethods').classList.add('hidden'); // Hide payment methods until package is selected
+    } else {
+        document.getElementById('packagesContainer').classList.add('hidden');
+        document.getElementById('paymentMethods').classList.add('hidden');
+        clearSelect(stateSelect);
+        clearSelect(citySelect);
+    }
+});
+
+stateSelect.addEventListener('change', function() {
+    loadCities(this.value);
+});
+
+// Load packages for selected country
+async function loadPackages(countryId) {
+    try {
+        const country = document.querySelector(`#countrySelect option[value="${countryId}"]`);
+        if (!country) {
+            console.error('Country not found');
+            return;
+        }
+        const countryCode = country.getAttribute('data-code');
+        
+        const response = await fetch(`/api/vip-packages/country/${countryCode}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        if (data.status === 'error') {
+            throw new Error(data.message);
+        }
+        
+        const packagesGrid = document.getElementById('packagesGrid');
+        packagesGrid.innerHTML = '';
+        
+        data.packages.forEach((package, index) => {
+            const isPopular = index === 1; // Make second package popular
+            const packageCard = createPackageCard(package, isPopular);
+            packagesGrid.appendChild(packageCard);
+        });
+        
+        document.getElementById('packagesContainer').classList.remove('hidden');
+    } catch (error) {
+        console.error('Error loading packages:', error);
+        // إظهار رسالة خطأ للمستخدم
+        const packagesGrid = document.getElementById('packagesGrid');
+        packagesGrid.innerHTML = `
+            <div class="col-span-full text-center p-8">
+                <div class="text-red-500 mb-4">
+                    <i class="fas fa-exclamation-circle text-4xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">حدث خطأ</h3>
+                <p class="text-gray-500">لم نتمكن من تحميل الباقات. يرجى المحاولة مرة أخرى لاحقاً.</p>
+            </div>
+        `;
+        document.getElementById('packagesContainer').classList.remove('hidden');
+    }
+}
+
+// Load payment methods for selected package
+async function loadPaymentMethods(packageId) {
+    try {
+        console.log('Loading payment methods for package:', packageId);
+        const response = await fetch(`/api/payment-methods/by-package/${packageId}`);
+        const paymentMethods = await response.json();
+        console.log('Loaded payment methods:', paymentMethods);
+
+        // Update payment methods display
+        const paymentMethodsContainer = document.getElementById('paymentMethods');
+        paymentMethodsContainer.innerHTML = '';
+
+        if (paymentMethods.length === 0) {
+            paymentMethodsContainer.innerHTML = `
+                <div class="col-span-full text-center p-4">
+                    <p class="text-gray-500">لا توجد طرق دفع متاحة لهذه الباقة</p>
+                </div>
+            `;
+            return;
+        }
+
+        paymentMethods.forEach(method => {
+            const methodCard = document.createElement('div');
+            methodCard.className = 'payment-method bg-white p-4 rounded-lg border border-gray-200 hover:border-blue-500 cursor-pointer';
+            methodCard.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        ${method.icon ? `<img src="${method.icon}" alt="${method.name}" class="w-10 h-10 object-contain">` : ''}
+                        <div class="rtl:space-x-reverse">
+                            <h4 class="font-semibold text-gray-900">${method.name}</h4>
+                            <p class="text-sm text-gray-500">${method.name_en || ''}</p>
+                        </div>
+                    </div>
+                    <input type="radio" name="payment_method" value="${method.id}" class="form-radio h-5 w-5 text-blue-600" required>
+                </div>
+            `;
+            
+            // Add click event listener
+            methodCard.addEventListener('click', function() {
+                selectPaymentMethod(method, this);
+            });
+            
+            paymentMethodsContainer.appendChild(methodCard);
+        });
+        
+        // Show payment methods section and reset other sections
+        document.getElementById('paymentMethods').classList.remove('hidden');
+        document.getElementById('paymentDetails').classList.add('hidden');
+        document.getElementById('bankTransferFields').classList.add('hidden');
+    } catch (error) {
+        console.error('Error loading payment methods:', error);
+        const paymentMethodsContainer = document.getElementById('paymentMethods');
+        paymentMethodsContainer.innerHTML = `
+            <div class="col-span-full text-center p-4">
+                <p class="text-red-500">حدث خطأ أثناء تحميل طرق الدفع. يرجى المحاولة مرة أخرى.</p>
+            </div>
+        `;
+    }
+}
+
+// Create package card
+function createPackageCard(package, isPopular = false) {
+    const div = document.createElement('div');
+    div.className = `package-card bg-white rounded-xl shadow-lg p-6 ${isPopular ? 'package-popular' : ''}`;
+    
+    div.innerHTML = `
+        <div class="text-center mb-6">
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">${package.name}</h3>
+            <p class="text-gray-600 text-sm mb-4">${package.description || ''}</p>
+            <div class="text-3xl font-bold text-blue-600">
+                ${package.price} ${package.currency}
+                <span class="text-sm text-gray-500 font-normal">/ ${package.duration_days} يوم</span>
+            </div>
+        </div>
+        
+        <div class="space-y-3 mb-6">
+            <div class="flex items-center">
+                <i class="fas fa-check feature-check mr-3"></i>
+                <span class="text-sm">إعلانات مميزة: ${package.featured_ads_count}</span>
+            </div>
+            <div class="flex items-center">
+                <i class="fas fa-${package.priority_support ? 'check feature-check' : 'times feature-cross'} mr-3"></i>
+                <span class="text-sm">دعم أولوية</span>
+            </div>
+            <div class="flex items-center">
+                <i class="fas fa-${package.advanced_analytics ? 'check feature-check' : 'times feature-cross'} mr-3"></i>
+                <span class="text-sm">إحصائيات متقدمة</span>
+            </div>
+            <div class="flex items-center">
+                <i class="fas fa-${package.boost_in_search ? 'check feature-check' : 'times feature-cross'} mr-3"></i>
+                <span class="text-sm">تعزيز في البحث</span>
+            </div>
+            ${package.custom_badge ? `
+            <div class="flex items-center">
+                <i class="fas fa-check feature-check mr-3"></i>
+                <span class="text-sm">شارة مخصصة: ${package.custom_badge}</span>
+            </div>
+            ` : ''}
+        </div>
+        
+        <button onclick="selectPackage('${package.id}')" 
+                class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors">
+            اختر هذه الباقة
+        </button>
+    `;
+    
+    return div;
+}
+
+// Select package and open modal
+function selectPackage(packageId) {
+    selectedPackage = packageId;
+    
+    // Find package details
+    const packages = document.querySelectorAll('.package-card');
+    packages.forEach(card => {
+        if (card.querySelector('button').getAttribute('onclick').includes(packageId)) {
+            const packageName = card.querySelector('h3').textContent;
+            const packagePrice = card.querySelector('.text-3xl').textContent;
+            
+            document.getElementById('packageDetails').innerHTML = `
+                <h4 class="font-bold text-lg text-blue-800 mb-2">الباقة المختارة</h4>
+                <div class="flex justify-between items-center">
+                    <span class="font-semibold">${packageName}</span>
+                    <span class="font-bold text-lg">${packagePrice}</span>
+                </div>
+            `;
+        }
+    });
+    
+    // Load payment methods for the selected package
+    loadPaymentMethods(packageId);
+    
+    // Show the modal
+    document.getElementById('subscriptionModal').classList.remove('hidden');
+    
+    // Reset payment details
+    document.getElementById('bankTransferFields').classList.add('hidden');
+    document.getElementById('paymentDetails').classList.add('hidden');
+}
+
+// Select payment method
+function selectPaymentMethod(method, clickedElement) {
+    selectedPaymentMethod = method;
+    
+    // Update UI for all payment method cards
+    document.querySelectorAll('.payment-method').forEach(el => {
+        el.classList.remove('selected', 'border-blue-500');
+        el.classList.add('border-gray-200');
+    });
+    clickedElement.classList.add('selected', 'border-blue-500');
+    clickedElement.classList.remove('border-gray-200');
+    
+    // Update radio button
+    clickedElement.querySelector('input[type="radio"]').checked = true;
+    
+    // Show payment details section
+    const paymentDetails = document.getElementById('paymentDetails');
+    const bankTransferFields = document.getElementById('bankTransferFields');
+    
+    // Show payment details for all methods
+    paymentDetails.innerHTML = `
+        <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-semibold text-gray-800 mb-3">تفاصيل طريقة الدفع</h4>
+            <div class="space-y-3">
+                <!-- Payment Method Name -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h5 class="font-semibold text-gray-800">${method.name}</h5>
+                        <p class="text-sm text-gray-600">${method.name_en}</p>
+                    </div>
+                    ${method.icon ? `<img src="${method.icon}" alt="${method.name}" class="h-10 w-10 object-contain">` : ''}
+                </div>
+
+                <!-- Instructions -->
+                ${method.instructions ? `
+                <div class="bg-blue-50 rounded-lg p-3">
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        ${method.instructions}
+                    </p>
+                    ${method.instructions_en ? `
+                    <p class="text-sm text-gray-600 mt-2 border-t border-blue-100 pt-2">
+                        ${method.instructions_en}
+                    </p>
+                    ` : ''}
+                </div>
+                ` : ''}
+
+                <!-- Account Details for Bank Transfers -->
+                ${method.requires_proof ? `
+                <div class="space-y-2 border-t border-gray-200 pt-3">
+                    ${method.bank_name ? `
+                    <p class="flex items-center text-sm text-gray-700">
+                        <i class="fas fa-university w-6"></i>
+                        <span class="font-semibold ml-2">البنك:</span>
+                        <span class="mr-2">${method.bank_name}</span>
+                    </p>` : ''}
+                    
+                    ${method.account_name ? `
+                    <p class="flex items-center text-sm text-gray-700">
+                        <i class="fas fa-user w-6"></i>
+                        <span class="font-semibold ml-2">اسم الحساب:</span>
+                        <span class="mr-2">${method.account_name}</span>
+                    </p>` : ''}
+                    
+                    ${method.account_number ? `
+                    <p class="flex items-center text-sm text-gray-700">
+                        <i class="fas fa-hashtag w-6"></i>
+                        <span class="font-semibold ml-2">رقم الحساب:</span>
+                        <span class="mr-2">${method.account_number}</span>
+                    </p>` : ''}
+                    
+                    ${method.iban ? `
+                    <p class="flex items-center text-sm text-gray-700">
+                        <i class="fas fa-credit-card w-6"></i>
+                        <span class="font-semibold ml-2">IBAN:</span>
+                        <span class="mr-2 font-mono">${method.iban}</span>
+                    </p>` : ''}
+                    
+                    ${method.swift_code ? `
+                    <p class="flex items-center text-sm text-gray-700">
+                        <i class="fas fa-globe w-6"></i>
+                        <span class="font-semibold ml-2">SWIFT:</span>
+                        <span class="mr-2 font-mono">${method.swift_code}</span>
+                    </p>` : ''}
+                </div>
+                ` : ''}
+
+                <!-- Payment Proof Upload for methods that require proof -->
+                ${method.requires_proof ? `
+                <div class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <h5 class="font-semibold text-yellow-800 mb-3">
+                        <i class="fas fa-upload mr-2"></i>
+                        إثبات الدفع
+                    </h5>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">صورة إثبات الدفع *</label>
+                            <input type="file" name="payment_proof" accept="image/*" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">يرجى رفع صورة واضحة لإيصال الدفع</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">رقم العملية</label>
+                            <input type="text" name="transaction_number" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="أدخل رقم العملية أو المرجع">
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    paymentDetails.classList.remove('hidden');
+    
+    // Reset bank transfer fields
+    document.querySelector('input[name="transfer_reference"]').value = '';
+    document.querySelector('input[name="transfer_date"]').value = '';
+    document.querySelector('input[name="transfer_proof"]').value = '';
+    
+    // Handle bank transfer specific fields
+    if (method.requires_proof) {
+        bankTransferFields.classList.remove('hidden');
+        document.getElementById('bankInstructions').innerHTML = `
+            <div class="space-y-2 text-sm">
+                ${method.account_name ? `<p><strong>اسم الحساب:</strong> ${method.account_name}</p>` : ''}
+                ${method.bank_name ? `<p><strong>البنك:</strong> ${method.bank_name}</p>` : ''}
+                ${method.account_number ? `<p><strong>رقم الحساب:</strong> ${method.account_number}</p>` : ''}
+                ${method.iban ? `<p><strong>IBAN:</strong> ${method.iban}</p>` : ''}
+                <div class="mt-3 p-3 bg-yellow-100 rounded">
+                    ${method.instructions || 'يرجى التحويل ثم رفع إثبات التحويل'}
+                </div>
+            </div>
+        `;
+        
+        // Make transfer proof required for bank transfers
+        const transferFields = document.querySelectorAll('input[name="transfer_reference"], input[name="transfer_date"], input[name="transfer_proof"]');
+        transferFields.forEach(field => {
+            field.required = true;
+        });
+    } else {
+        bankTransferFields.classList.add('hidden');
+        // Remove required from transfer fields for non-bank methods
+        const transferFields = document.querySelectorAll('input[name="transfer_reference"], input[name="transfer_date"], input[name="transfer_proof"]');
+        transferFields.forEach(field => {
+            field.required = false;
         });
     }
+}
+
+// Form submission
+document.getElementById('subscriptionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
     
-    function hidePaymentForm() {
-        document.getElementById('payment-form').classList.add('hidden');
+    // Validate required fields
+    if (!selectedPackage) {
+        alert('الرجاء اختيار باقة');
+        return;
     }
     
-    function toggleFaq(button) {
-        const content = button.nextElementSibling;
-        const icon = button.querySelector('i');
+    if (!selectedPaymentMethod) {
+        alert('الرجاء اختيار طريقة دفع');
+        return;
+    }
+    
+    const formData = new FormData(this);
+    formData.append('package_id', selectedPackage);
+    formData.append('payment_method', selectedPaymentMethod.id);
+    
+    // Add payment details based on method type
+    if (selectedPaymentMethod.requires_proof) {
+        const transferProof = document.querySelector('input[name="transfer_proof"]').files[0];
+        const transferRef = document.querySelector('input[name="transfer_reference"]').value;
+        const transferDate = document.querySelector('input[name="transfer_date"]').value;
         
-        content.classList.toggle('hidden');
-        icon.classList.toggle('rotate-180');
+        if (!transferProof) {
+            alert('الرجاء إرفاق إثبات التحويل');
+            return;
+        }
+        
+        formData.append('payment_proof', transferProof);
+        formData.append('payment_reference', transferRef);
+        formData.append('transfer_date', transferDate);
     }
     
-    document.getElementById('vip-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        alert('شكراً لك! سيتم التواصل معك قريباً لإكمال عملية الاشتراك.');
-    });
+    try {
+        const response = await fetch('/vip/subscribe', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            closeModal();
+            document.getElementById('successModal').classList.remove('hidden');
+        } else {
+            alert('خطأ: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء إرسال الطلب');
+    }
+});
+
+// Modal functions
+function closeModal() {
+    document.getElementById('subscriptionModal').classList.add('hidden');
+}
+
+function closeSuccessModal() {
+    document.getElementById('successModal').classList.add('hidden');
+    window.location.reload();
+}
+
+// Close modals when clicking outside
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal-backdrop')) {
+        closeModal();
+        closeSuccessModal();
+    }
+});
 </script>
 {% endblock %}

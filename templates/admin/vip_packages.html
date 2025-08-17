@@ -1,0 +1,306 @@
+{% extends "admin/base.html" %}
+
+{% block title %}إدارة باقات VIP{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-box text-green-600 mr-2"></i>
+            إدارة باقات VIP
+        </h1>
+        <button onclick="openAddPackageModal()" 
+                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+            <i class="fas fa-plus mr-2"></i>
+            إضافة باقة جديدة
+        </button>
+    </div>
+    
+    <!-- Add Package Form -->
+    <form action="{{ url_for('add_vip_package_main') }}" method="POST" id="addPackageForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    </form>
+
+    <!-- Packages Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for package in packages %}
+        <div class="bg-white rounded-lg shadow-lg p-6 {{ 'border-2 border-yellow-400' if loop.index == 2 else '' }}">
+            {% if loop.index == 2 %}
+            <div class="text-center mb-4">
+                <span class="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold">
+                    باقة مميزة
+                </span>
+            </div>
+            {% endif %}
+            
+            <div class="text-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-2">{{ package.name }}</h3>
+                <p class="text-gray-600 text-sm mb-4">{{ package.description or '' }}</p>
+                <div class="text-3xl font-bold text-blue-600">
+                    {{ "{:,.0f}".format(package.price) }} {{ package.currency }}
+                    <span class="text-sm text-gray-500 font-normal">/ {{ package.duration_days }} يوم</span>
+                </div>
+            </div>
+            
+            <!-- Package Features -->
+            <div class="space-y-3 mb-6">
+                <div class="flex items-center text-sm">
+                    <i class="fas fa-star text-yellow-500 mr-3 w-4"></i>
+                    <span>إعلانات مميزة: {{ package.featured_ads_count }}</span>
+                </div>
+                <div class="flex items-center text-sm">
+                    <i class="fas fa-{{ 'check text-green-500' if package.priority_support else 'times text-red-500' }} mr-3 w-4"></i>
+                    <span>دعم أولوية</span>
+                </div>
+                <div class="flex items-center text-sm">
+                    <i class="fas fa-{{ 'check text-green-500' if package.advanced_analytics else 'times text-red-500' }} mr-3 w-4"></i>
+                    <span>إحصائيات متقدمة</span>
+                </div>
+                <div class="flex items-center text-sm">
+                    <i class="fas fa-{{ 'check text-green-500' if package.boost_in_search else 'times text-red-500' }} mr-3 w-4"></i>
+                    <span>تعزيز في البحث</span>
+                </div>
+                {% if package.custom_badge %}
+                <div class="flex items-center text-sm">
+                    <i class="fas fa-badge text-purple-500 mr-3 w-4"></i>
+                    <span>شارة: {{ package.custom_badge }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Package Info -->
+            <div class="text-sm text-gray-600 mb-4">
+                <div class="flex justify-between mb-2">
+                    <span>الدولة:</span>
+                    <span>{{ package.country.name }}</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span>طرق الدفع:</span>
+                    <span>{{ package.payment_methods|length }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>الحالة:</span>
+                    <span class="px-2 py-1 text-xs rounded-full {{ 'bg-green-100 text-green-800' if package.is_active else 'bg-red-100 text-red-800' }}">
+                        {{ 'نشط' if package.is_active else 'غير نشط' }}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex space-x-2 rtl:space-x-reverse">
+                <button onclick="editPackage('{{ package.id }}')" 
+                        class="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700">
+                    <i class="fas fa-edit mr-1"></i>
+                    تعديل
+                </button>
+                <button onclick="togglePackage('{{ package.id }}', {{ 'false' if package.is_active else 'true' }})" 
+                        class="flex-1 {{ 'bg-red-600 hover:bg-red-700' if package.is_active else 'bg-green-600 hover:bg-green-700' }} text-white px-3 py-2 rounded text-sm">
+                    <i class="fas fa-{{ 'pause' if package.is_active else 'play' }} mr-1"></i>
+                    {{ 'إيقاف' if package.is_active else 'تفعيل' }}
+                </button>
+                <form method="POST" action="{{ url_for('delete_vip_package_main', package_id=package.id) }}" class="inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <button type="submit" onclick="return confirm('هل أنت متأكد من حذف هذه الباقة؟')" 
+                            class="bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Add Package Modal -->
+<div id="addPackageModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6 m-4 max-w-2xl w-full max-h-screen overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-gray-900">إضافة باقة VIP جديدة</h3>
+            <button onclick="closeAddPackageModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <form method="POST" action="{{ url_for('add_vip_package_main') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">اسم الباقة *</label>
+                    <input type="text" name="name" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">الاسم بالإنجليزية *</label>
+                    <input type="text" name="name_en" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">الوصف</label>
+                <textarea name="description" rows="3"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">المدة (بالأيام) *</label>
+                    <input type="number" name="duration_days" required min="1"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">السعر *</label>
+                    <input type="number" name="price" required min="0" step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">العملة *</label>
+                    <select name="currency" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="USD">USD</option>
+                        <option value="SAR">SAR</option>
+                        <option value="AED">AED</option>
+                        <option value="EGP">EGP</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">الدولة *</label>
+                <select name="country_id" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">اختر الدولة</option>
+                    {% for country in countries %}
+                    <option value="{{ country.id }}">{{ country.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">عدد الإعلانات المميزة</label>
+                    <input type="number" name="featured_ads_count" min="0" value="0"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">الشارة المخصصة</label>
+                    <input type="text" name="custom_badge" placeholder="VIP, Premium, ..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+            
+            <!-- Features Checkboxes -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="flex items-center">
+                    <input type="checkbox" name="priority_support" value="1" class="mr-2">
+                    <label class="text-sm text-gray-700">دعم أولوية</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" name="advanced_analytics" value="1" class="mr-2">
+                    <label class="text-sm text-gray-700">إحصائيات متقدمة</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" name="boost_in_search" value="1" checked class="mr-2">
+                    <label class="text-sm text-gray-700">تعزيز في البحث</label>
+                </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">طرق الدفع المتاحة *</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="paymentMethodsContainer">
+                    <!-- سيتم ملء طرق الدفع ديناميكياً عند اختيار الدولة -->
+                </div>
+            </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const countrySelect = document.querySelector('select[name="country_id"]');
+                const paymentMethodsContainer = document.getElementById('paymentMethodsContainer');
+
+                countrySelect.addEventListener('change', function() {
+                    const countryId = this.value;
+                    if (countryId) {
+                        // جلب طرق الدفع المتاحة للدولة المختارة
+                        fetch(`/api/payment-methods/by-country/${countryId}`)
+                            .then(response => response.json())
+                            .then(methods => {
+                                if (methods.length === 0) {
+                                    paymentMethodsContainer.innerHTML = '<div class="col-span-3 text-center text-gray-500 py-4">لا توجد طرق دفع متاحة لهذه الدولة</div>';
+                                    return;
+                                }
+                                
+                                paymentMethodsContainer.innerHTML = methods.map(method => `
+                                    <div class="flex items-center bg-gray-50 p-3 rounded-lg">
+                                        <input type="checkbox" name="payment_methods[]" value="${method.id}" 
+                                               class="ml-2 w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                                        <div class="flex flex-col flex-grow">
+                                            <label class="text-sm text-gray-900 font-medium">
+                                                ${method.name}
+                                                ${method.requires_proof ? '<span class="text-xs text-yellow-600">(يتطلب إثبات)</span>' : ''}
+                                            </label>
+                                            <span class="text-xs text-gray-500">${method.name_en}</span>
+                                        </div>
+                                        ${method.icon ? `<i class="${method.icon} text-gray-400"></i>` : ''}
+                                    </div>
+                                `).join('');
+                            })
+                            .catch(error => {
+                                console.error('Error loading payment methods:', error);
+                                paymentMethodsContainer.innerHTML = '<div class="text-red-500">خطأ في تحميل طرق الدفع</div>';
+                            });
+                    } else {
+                        paymentMethodsContainer.innerHTML = '<div class="text-gray-500">اختر الدولة أولاً لعرض طرق الدفع المتاحة</div>';
+                    }
+                });
+            });
+            </script>
+            
+            <div class="flex justify-end space-x-3 rtl:space-x-reverse">
+                <button type="button" onclick="closeAddPackageModal()" 
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                    إلغاء
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700">
+                    إضافة الباقة
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function openAddPackageModal() {
+    document.getElementById('addPackageModal').classList.remove('hidden');
+}
+
+function closeAddPackageModal() {
+    document.getElementById('addPackageModal').classList.add('hidden');
+}
+
+function editPackage(packageId) {
+    // You can implement edit functionality here
+    alert('Edit functionality will be implemented soon');
+}
+
+function togglePackage(packageId, activate) {
+    // You can implement toggle functionality here
+    if (confirm(`هل أنت متأكد من ${activate ? 'تفعيل' : 'إيقاف'} هذه الباقة؟`)) {
+        // Make AJAX request to toggle package status
+        alert('Toggle functionality will be implemented soon');
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('addPackageModal');
+    if (event.target === modal) {
+        closeAddPackageModal();
+    }
+}
+</script>
+{% endblock %}

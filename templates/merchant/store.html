@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}{{ store.name }} - المتجر{% endblock %}
+
+{% block extra_head %}
+<style>
+.store-banner {
+    height: 300px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.store-logo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 5px solid white;
+    position: absolute;
+    bottom: -75px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    object-fit: cover;
+}
+
+.edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.edit-overlay:hover {
+    opacity: 1;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 pb-12">
+    <!-- Store Banner -->
+    <div class="relative mb-20">
+        <div class="store-banner bg-gray-200" style="background-image: url('{{ store.banner_url if store.banner_url else url_for('static', filename='images/default-banner.jpg') }}')">
+            {% if is_owner %}
+            <div class="edit-overlay">
+                <button onclick="document.getElementById('banner-upload').click()" 
+                        class="bg-white text-gray-800 px-4 py-2 rounded-lg shadow hover:bg-gray-100">
+                    <i class="fas fa-camera mr-2"></i>تغيير صورة الغلاف
+                </button>
+                <input type="file" id="banner-upload" class="hidden" accept="image/*" onchange="uploadBanner(this.files[0])">
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Store Logo -->
+        <div class="relative mx-auto" style="width: 150px;">
+            <img src="{{ store.logo_url if store.logo_url else url_for('static', filename='images/default-logo.png') }}" 
+                 alt="{{ store.name }}" 
+                 class="store-logo shadow-lg">
+            {% if is_owner %}
+            <div class="absolute inset-0 flex items-center justify-center">
+                <button onclick="document.getElementById('logo-upload').click()" 
+                        class="bg-white text-gray-800 w-10 h-10 rounded-full shadow hover:bg-gray-100 flex items-center justify-center">
+                    <i class="fas fa-camera"></i>
+                </button>
+                <input type="file" id="logo-upload" class="hidden" accept="image/*" onchange="uploadLogo(this.files[0])">
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Store Info -->
+    <div class="container mx-auto px-4 mt-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Store Header -->
+            <div class="text-center mb-8">
+                {% if is_owner %}
+                <div class="inline-block relative">
+                    <h1 id="store-name" class="text-3xl font-bold text-gray-900 mb-2">{{ store.name }}</h1>
+                    <button onclick="editStoreName()" class="absolute -right-8 top-0 text-blue-600 hover:text-blue-700">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                </div>
+                {% else %}
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ store.name }}</h1>
+                {% endif %}
+                <p class="text-gray-600">{{ store.description or 'لا يوجد وصف للمتجر' }}</p>
+                {% if is_owner %}
+                <button onclick="editStoreDescription()" class="text-blue-600 hover:text-blue-700 text-sm mt-2">
+                    <i class="fas fa-pen mr-1"></i>تعديل الوصف
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-center gap-4 mb-8">
+                {% if is_owner %}
+                <a href="{{ url_for('add_ad') }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    إضافة إعلان جديد
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Store Ads -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-6">إعلانات المتجر</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for ad in store_ads %}
+                    <a href="{{ url_for('ad_details', ad_id=ad.id) }}" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                        <div class="relative h-48">
+                            {% if ad.images %}
+                            <img src="{{ url_for('static', filename='uploads/' + ad.images[0]) }}" 
+                                 alt="{{ ad.title }}" 
+                                 class="w-full h-full object-cover">
+                            {% else %}
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-image text-gray-400 text-4xl"></i>
+                            </div>
+                            {% endif %}
+                            {% if ad.price %}
+                            <div class="absolute top-2 right-2">
+                                <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                    {{ ad.price }} {{ ad.currency }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-gray-800 mb-2">{{ ad.title }}</h3>
+                            <p class="text-gray-600 text-sm">{{ ad.description[:100] }}...</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                {% if not store_ads %}
+                <div class="text-center py-12">
+                    <div class="text-gray-400 mb-4">
+                        <i class="fas fa-store text-6xl"></i>
+                    </div>
+                    <h3 class="text-xl font-medium text-gray-600 mb-2">لا توجد إعلانات حالياً</h3>
+                    {% if is_owner %}
+                    <p class="text-gray-500 mb-4">ابدأ بإضافة إعلانك الأول!</p>
+                    <a href="{{ url_for('add_ad') }}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>
+                        إضافة إعلان جديد
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function uploadBanner(file) {
+    const formData = new FormData();
+    formData.append('banner', file);
+    
+    fetch('/merchant/store/banner', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('فشل تحديث صورة الغلاف');
+        }
+    });
+}
+
+function uploadLogo(file) {
+    const formData = new FormData();
+    formData.append('logo', file);
+    
+    fetch('/merchant/store/logo', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('فشل تحديث شعار المتجر');
+        }
+    });
+}
+
+function editStoreName() {
+    const nameElement = document.getElementById('store-name');
+    const currentName = nameElement.textContent;
+    
+    const newName = prompt('أدخل اسم المتجر الجديد:', currentName);
+    if (newName && newName !== currentName) {
+        fetch('/merchant/store/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: newName
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                nameElement.textContent = newName;
+            } else {
+                alert('فشل تحديث اسم المتجر');
+            }
+        });
+    }
+}
+
+function editStoreDescription() {
+    const currentDesc = "{{ store.description or '' }}";
+    const newDesc = prompt('أدخل وصف المتجر الجديد:', currentDesc);
+    
+    if (newDesc !== null && newDesc !== currentDesc) {
+        fetch('/merchant/store/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                description: newDesc
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('فشل تحديث وصف المتجر');
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

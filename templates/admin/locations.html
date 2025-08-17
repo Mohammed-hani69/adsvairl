@@ -1,0 +1,312 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}إدارة المناطق الجغرافية{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4">
+    <!-- رأس الصفحة -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">إدارة المناطق الجغرافية</h2>
+        <p class="text-gray-600">إدارة الدول والمحافظات والمدن في مكان واحد</p>
+    </div>
+
+    <!-- البطاقات الرئيسية -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- قسم الدول -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-white font-bold">الدول</h3>
+                    <button type="button" data-form-trigger="countryForm" class="text-white hover:text-blue-200 form-toggle-button">
+                        <i class="fas fa-plus-circle text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- نموذج إضافة دولة -->
+            <div id="countryForm" class="hidden px-6 py-4 bg-blue-50 border-b border-blue-100">
+                <form method="post" action="{{ url_for('admin_locations') }}" class="space-y-3">
+                    <input type="hidden" name="form_type" value="country">
+                    <div>
+                        <input name="name" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500" 
+                               placeholder="اسم الدولة بالعربية" required>
+                    </div>
+                    <div>
+                        <input name="name_en" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500" 
+                               placeholder="اسم الدولة بالإنجليزية" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input name="code" class="px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500" 
+                               placeholder="كود الدولة" required>
+                        <input name="currency" class="px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500" 
+                               placeholder="العملة" required>
+                    </div>
+                    <div>
+                        <input name="vip_price" type="number" step="0.01" 
+                               class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500" 
+                               placeholder="سعر VIP" required>
+                    </div>
+                    <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        إضافة دولة جديدة
+                    </button>
+                </form>
+            </div>
+
+            <!-- قائمة الدول -->
+            <div class="p-6">
+                <div class="space-y-2">
+                    {% for c in countries %}
+                    <div class="flex items-center justify-between group">
+                        <a href="{{ url_for('admin_locations', country_id=c.id) }}" 
+                           class="flex-1 py-2 px-3 rounded-lg hover:bg-blue-50 {% if selected_country and c.id == selected_country.id %}bg-blue-100 font-semibold{% endif %}">
+                            <span class="text-gray-800">{{ c.name }}</span>
+                            <span class="text-gray-500 text-sm">{{ c.name_en }}</span>
+                        </a>
+                        <form method="post" action="{{ url_for('admin_delete_country', country_id=c.id) }}" 
+                              class="hidden group-hover:block" onsubmit="return confirm('تأكيد حذف الدولة؟')">
+                            <button class="text-red-500 hover:text-red-700 px-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم المحافظات -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden {% if not selected_country %}opacity-75{% endif %}">
+            <div class="bg-gradient-to-r from-green-600 to-green-800 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-white font-bold">
+                        {% if selected_country %}
+                        محافظات {{ selected_country.name }}
+                        {% else %}
+                        المحافظات
+                        {% endif %}
+                    </h3>
+                    {% if selected_country %}
+                    <button type="button" data-form-trigger="stateForm" class="text-white hover:text-green-200 form-toggle-button">
+                        <i class="fas fa-plus-circle text-xl"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- نموذج إضافة محافظة -->
+            {% if selected_country %}
+            <div id="stateForm" class="hidden px-6 py-4 bg-green-50 border-b border-green-100">
+                <form method="post" action="{{ url_for('admin_locations', country_id=selected_country.id) }}" class="space-y-3">
+                    <input type="hidden" name="form_type" value="state">
+                    <div>
+                        <input name="name" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-green-500" 
+                               placeholder="اسم المحافظة بالعربية" required>
+                    </div>
+                    <div>
+                        <input name="name_en" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-green-500" 
+                               placeholder="اسم المحافظة بالإنجليزية">
+                    </div>
+                    <button class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        إضافة محافظة جديدة
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- قائمة المحافظات -->
+            <div class="p-6">
+                {% if selected_country %}
+                <div class="space-y-2">
+                    {% for s in states %}
+                    <div class="flex items-center justify-between group">
+                        <a href="{{ url_for('admin_locations', country_id=selected_country.id, state_id=s.id) }}" 
+                           class="flex-1 py-2 px-3 rounded-lg hover:bg-green-50 {% if selected_state and s.id == selected_state.id %}bg-green-100 font-semibold{% endif %}">
+                            <span class="text-gray-800">{{ s.name }}</span>
+                            <span class="text-gray-500 text-sm">{{ s.name_en }}</span>
+                        </a>
+                        <form method="post" action="{{ url_for('admin_delete_state', state_id=s.id) }}" 
+                              class="hidden group-hover:block" onsubmit="return confirm('تأكيد حذف المحافظة؟')">
+                            <button class="text-red-500 hover:text-red-700 px-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-arrow-right text-3xl mb-2"></i>
+                    <p>اختر دولة لعرض محافظاتها</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- قسم المدن -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden {% if not selected_state %}opacity-75{% endif %}">
+            <div class="bg-gradient-to-r from-purple-600 to-purple-800 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-white font-bold">
+                        {% if selected_state %}
+                        مدن {{ selected_state.name }}
+                        {% else %}
+                        المدن
+                        {% endif %}
+                    </h3>
+                    {% if selected_state %}
+                    <button type="button" data-form-trigger="cityForm" class="text-white hover:text-purple-200 form-toggle-button">
+                        <i class="fas fa-plus-circle text-xl"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- نموذج إضافة مدينة -->
+            {% if selected_state %}
+            <div id="cityForm" class="hidden px-6 py-4 bg-purple-50 border-b border-purple-100">
+                <form method="post" action="{{ url_for('admin_locations', country_id=selected_country.id, state_id=selected_state.id) }}" class="space-y-3">
+                    <input type="hidden" name="form_type" value="city">
+                    <div>
+                        <input name="name" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-purple-500" 
+                               placeholder="اسم المدينة بالعربية" required>
+                    </div>
+                    <div>
+                        <input name="name_en" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-purple-500" 
+                               placeholder="اسم المدينة بالإنجليزية">
+                    </div>
+                    <button class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                        إضافة مدينة جديدة
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- قائمة المدن -->
+            <div class="p-6">
+                {% if selected_state %}
+                <div class="space-y-2">
+                    {% for c in cities %}
+                    <div class="flex items-center justify-between group">
+                        <div class="flex-1 py-2 px-3 rounded-lg">
+                            <span class="text-gray-800">{{ c.name }}</span>
+                            <span class="text-gray-500 text-sm">{{ c.name_en }}</span>
+                        </div>
+                        <form method="post" action="{{ url_for('admin_delete_city', city_id=c.id) }}" 
+                              class="hidden group-hover:block" onsubmit="return confirm('تأكيد حذف المدينة؟')">
+                            <button class="text-red-500 hover:text-red-700 px-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-arrow-right text-3xl mb-2"></i>
+                    <p>اختر محافظة لعرض مدنها</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // أزرار إظهار/إخفاء النماذج
+    document.querySelectorAll('[data-form-trigger]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const formId = this.getAttribute('data-form-trigger');
+            toggleForm(formId);
+        });
+    });
+
+    // دالة إظهار/إخفاء النماذج
+    window.toggleForm = function(formId) {
+        console.log('Toggle form:', formId); // للتأكد من استدعاء الدالة
+        const form = document.getElementById(formId);
+        if (!form) {
+            console.error('Form not found:', formId);
+            return;
+        }
+
+        // إخفاء كل النماذج أولاً
+        ['countryForm', 'stateForm', 'cityForm'].forEach(id => {
+            const otherForm = document.getElementById(id);
+            if (otherForm) {
+                otherForm.classList.add('hidden');
+                otherForm.classList.remove('slide-down');
+            }
+        });
+
+        // تبديل حالة النموذج المطلوب
+        if (form.classList.contains('hidden')) {
+            form.classList.remove('hidden');
+            setTimeout(() => form.classList.add('slide-down'), 10);
+        } else {
+            form.classList.remove('slide-down');
+            setTimeout(() => form.classList.add('hidden'), 200);
+        }
+    }
+});
+</script>
+
+<style>
+/* تأثيرات إضافية */
+.group:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 0.5rem;
+}
+
+/* تحريك السهم عند التحويم */
+.fa-arrow-right {
+    transition: transform 0.3s ease;
+}
+
+.fa-arrow-right:hover {
+    transform: translateX(-5px);
+}
+
+/* تأثيرات النماذج */
+.slide-down {
+    animation: slideDown 0.3s ease forwards;
+}
+
+@keyframes slideDown {
+    from { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* تنسيق النماذج */
+#countryForm:not(.hidden),
+#stateForm:not(.hidden),
+#cityForm:not(.hidden) {
+    display: block;
+    transform-origin: top;
+}
+
+/* تحسين تجربة المستخدم للأزرار */
+.form-toggle-button {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.form-toggle-button:hover {
+    transform: scale(1.1);
+}
+
+#countryForm:not(.hidden),
+#stateForm:not(.hidden),
+#cityForm:not(.hidden) {
+    animation: slideDown 0.3s ease-out;
+}
+</style>
+{% endblock %}

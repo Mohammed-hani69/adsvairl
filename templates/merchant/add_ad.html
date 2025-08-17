@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}اعلن مع متجر{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">إضافة إعلان جديد في المتجر</h1>
+
+            <form id="add-ad-form" class="space-y-6">
+                <!-- Title -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">عنوان الإعلان *</label>
+                    <input type="text" name="title" required maxlength="100"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">وصف الإعلان *</label>
+                    <textarea name="description" required rows="5"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+                </div>
+
+                <!-- Price -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">السعر</label>
+                    <div class="flex items-center">
+                        <input type="number" name="price" min="0" step="0.01"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                        <span class="mr-2">ريال</span>
+                    </div>
+                </div>
+
+                <!-- Category -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">القسم *</label>
+                    <select name="category" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="">اختر القسم</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Location -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">الدولة</label>
+                        <select name="country" id="countrySelect"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            <option value="">اختر الدولة</option>
+                            {% for country in countries %}
+                            <option value="{{ country.id }}">{{ country.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">المنطقة</label>
+                        <select name="state" id="stateSelect" disabled
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            <option value="">اختر المنطقة</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">المدينة</label>
+                        <select name="city" id="citySelect" disabled
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            <option value="">اختر المدينة</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Images -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">صور الإعلان (حد أقصى 5 صور)</label>
+                    <input type="file" name="images[]" accept="image/*" multiple max="5"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                           onchange="handleImageSelection(this)">
+                    <div id="image-preview" class="hidden mt-4 grid grid-cols-2 md:grid-cols-5 gap-4"></div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        نشر الإعلان
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Handle country/state/city selection
+const countrySelect = document.getElementById('countrySelect');
+const stateSelect = document.getElementById('stateSelect');
+const citySelect = document.getElementById('citySelect');
+
+countrySelect.addEventListener('change', function() {
+    const countryId = this.value;
+    if (countryId) {
+        fetch(`/api/states/${countryId}`)
+            .then(response => response.json())
+            .then(states => {
+                stateSelect.innerHTML = '<option value="">اختر المنطقة</option>';
+                states.forEach(state => {
+                    stateSelect.innerHTML += `<option value="${state.id}">${state.name}</option>`;
+                });
+                stateSelect.disabled = false;
+                citySelect.disabled = true;
+                citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+            });
+    } else {
+        stateSelect.disabled = true;
+        citySelect.disabled = true;
+        stateSelect.innerHTML = '<option value="">اختر المنطقة</option>';
+        citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+    }
+});
+
+stateSelect.addEventListener('change', function() {
+    const stateId = this.value;
+    if (stateId) {
+        fetch(`/api/cities/${stateId}`)
+            .then(response => response.json())
+            .then(cities => {
+                citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+                cities.forEach(city => {
+                    citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
+                });
+                citySelect.disabled = false;
+            });
+    } else {
+        citySelect.disabled = true;
+        citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+    }
+});
+
+// Handle image preview
+function handleImageSelection(input) {
+    const preview = document.getElementById('image-preview');
+    preview.innerHTML = '';
+    
+    if (input.files.length > 0) {
+        preview.classList.remove('hidden');
+        
+        Array.from(input.files).slice(0, 5).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'relative';
+                div.innerHTML = `
+                    <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg">
+                    <button type="button" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                            onclick="this.parentElement.remove()">
+                        ×
+                    </button>
+                `;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    } else {
+        preview.classList.add('hidden');
+    }
+}
+
+// Handle form submission
+document.getElementById('add-ad-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>جاري النشر...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('/api/ads', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.href = `/merchant/store`; // Redirect to store after successful ad creation
+        } else {
+            alert(data.error || 'حدث خطأ أثناء نشر الإعلان');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    } catch (error) {
+        alert('حدث خطأ في الاتصال');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
+</script>
+{% endblock %}

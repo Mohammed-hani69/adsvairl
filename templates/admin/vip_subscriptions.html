@@ -1,0 +1,269 @@
+{% extends "admin/base.html" %}
+
+{% block title %}إدارة طلبات الاشتراك VIP{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-list text-blue-600 mr-2"></i>
+            طلبات الاشتراك VIP
+        </h1>
+        
+        <!-- Status Filter -->
+        <div class="flex space-x-2 rtl:space-x-reverse">
+            <a href="{{ url_for('admin_vip_subscriptions') }}" 
+               class="px-4 py-2 text-sm font-medium rounded-lg {{ 'bg-blue-600 text-white' if status_filter == 'all' else 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                الكل
+            </a>
+            <a href="{{ url_for('admin_vip_subscriptions', payment_status='pending') }}" 
+               class="px-4 py-2 text-sm font-medium rounded-lg {{ 'bg-yellow-600 text-white' if status_filter == 'pending' else 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                معلق
+            </a>
+            <a href="{{ url_for('admin_vip_subscriptions', payment_status='completed') }}" 
+               class="px-4 py-2 text-sm font-medium rounded-lg {{ 'bg-green-600 text-white' if payment_status == 'completed' else 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                مكتمل
+            </a>
+            <a href="{{ url_for('admin_vip_subscriptions', payment_status='failed') }}" 
+               class="px-4 py-2 text-sm font-medium rounded-lg {{ 'bg-red-600 text-white' if payment_status == 'failed' else 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                فشل
+            </a>
+        </div>
+    </div>
+
+    <!-- Subscriptions Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">العميل</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الباقة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">المبلغ</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">طريقة الدفع</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">التاريخ</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for subscription in subscriptions.items %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">{{ subscription.customer_name }}</div>
+                                <div class="text-sm text-gray-500">{{ subscription.customer_email }}</div>
+                                <div class="text-sm text-gray-500">{{ subscription.customer_phone }}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">{{ subscription.package.name }}</div>
+                                <div class="text-sm text-gray-500">{{ subscription.package.duration_days }} يوم</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {{ "{:,.0f}".format(subscription.payment_amount) }} {{ subscription.payment_currency }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ subscription.payment_method }}</div>
+                            {% if subscription.transfer_reference %}
+                                <div class="text-sm text-gray-500">رقم المرجع: {{ subscription.transfer_reference }}</div>
+                            {% endif %}
+                            {% if subscription.transfer_date %}
+                                <div class="text-sm text-gray-500">تاريخ التحويل: {{ subscription.transfer_date.strftime('%Y-%m-%d') }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if subscription.payment_status == 'pending' %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    معلق
+                                </span>
+                            {% elif subscription.payment_status == 'completed' %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    مكتمل
+                                </span>
+                                {% if subscription.end_date %}
+                                    <div class="text-xs text-gray-500 mt-1">
+                                        ينتهي: {{ subscription.end_date.strftime('%Y-%m-%d') }}
+                                    </div>
+                                {% endif %}
+                            {% elif subscription.payment_status == 'failed' %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    فشل
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {{ subscription.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                
+                                
+                                {% if subscription.status == 'pending' %}
+                                    <!-- Approve Button -->
+                                    <form method="POST" action="{{ url_for('approve_vip_subscription', subscription_id=subscription.id) }}" class="inline">
+                                        <button type="submit" class="text-green-600 hover:text-green-900" 
+                                                onclick="return confirm('هل أنت متأكد من قبول هذا الطلب؟')">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    
+                                    <!-- Reject Button -->
+                                    <button onclick="rejectSubscription('{{ subscription.id }}')" 
+                                            class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                {% endif %}
+                                
+                                {% if subscription.transfer_proof_image %}
+                                    <!-- View Proof Button -->
+                                    <button onclick="viewProof('{{ subscription.transfer_proof_image }}')" 
+                                            class="text-purple-600 hover:text-purple-900">
+                                        <i class="fas fa-image"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if subscriptions.pages > 1 %}
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    {% if subscriptions.has_prev %}
+                        <a href="{{ url_for('admin_vip_subscriptions', page=subscriptions.prev_num, status=status_filter) }}" 
+                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            السابق
+                        </a>
+                    {% endif %}
+                    {% if subscriptions.has_next %}
+                        <a href="{{ url_for('admin_vip_subscriptions', page=subscriptions.next_num, status=status_filter) }}" 
+                           class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            التالي
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            عرض {{ subscriptions.per_page * (subscriptions.page - 1) + 1 }} إلى 
+                            {{ subscriptions.per_page * subscriptions.page if subscriptions.page < subscriptions.pages else subscriptions.total }} 
+                            من {{ subscriptions.total }} نتيجة
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px rtl:space-x-reverse" aria-label="Pagination">
+                            {% for page_num in subscriptions.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != subscriptions.page %}
+                                        <a href="{{ url_for('admin_vip_subscriptions', page=page_num, status=status_filter) }}" 
+                                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            {{ page_num }}
+                                        </a>
+                                    {% else %}
+                                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                                            {{ page_num }}
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                        ...
+                                    </span>
+                                {% endif %}
+                            {% endfor %}
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Rejection Modal -->
+<div id="rejectionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6 m-4 max-w-md w-full">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">رفض طلب الاشتراك</h3>
+        <form id="rejectionForm" method="POST">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">سبب الرفض</label>
+                <textarea name="rejection_reason" rows="3" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="اكتب سبب رفض الطلب..."></textarea>
+            </div>
+            <div class="flex justify-end space-x-3 rtl:space-x-reverse">
+                <button type="button" onclick="closeRejectionModal()" 
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                    إلغاء
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
+                    رفض الطلب
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Proof Image Modal -->
+<div id="proofModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+    <div class="relative max-w-4xl max-h-screen p-4">
+        <button onclick="closeProofModal()" class="absolute top-4 right-4 text-white hover:text-gray-300">
+            <i class="fas fa-times text-2xl"></i>
+        </button>
+        <img id="proofImage" src="" alt="إثبات التحويل" class="max-w-full max-h-full object-contain">
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function viewSubscription(subscriptionId) {
+    // For now, show basic info. You can expand this to load details via AJAX
+    document.getElementById('subscriptionModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('subscriptionModal').classList.add('hidden');
+}
+
+function rejectSubscription(subscriptionId) {
+    const form = document.getElementById('rejectionForm');
+    form.action = `/admin/vip/subscriptions/${subscriptionId}/reject`;
+    document.getElementById('rejectionModal').classList.remove('hidden');
+}
+
+function closeRejectionModal() {
+    document.getElementById('rejectionModal').classList.add('hidden');
+}
+
+function viewProof(imageName) {
+    const img = document.getElementById('proofImage');
+    img.src = `/static/uploads/${imageName}`;
+    document.getElementById('proofModal').classList.remove('hidden');
+}
+
+function closeProofModal() {
+    document.getElementById('proofModal').classList.add('hidden');
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const modals = ['subscriptionModal', 'rejectionModal', 'proofModal'];
+    modals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (event.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+}
+</script>
+{% endblock %}
