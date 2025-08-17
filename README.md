@@ -76,6 +76,12 @@ python init_db.py
 python app.py
 ```
 
+git add .
+
+git commit -m "v 1.0.3"
+
+git push -u origin main
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
+from flask import Flask, render_template, request, jsonify, redirect, send_from_directory, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 from flask_wtf.csrf import CSRFProtect
@@ -281,6 +281,12 @@ def format_phone_for_whatsapp(phone):
         phone = '+966' + phone
     
     return phone.replace('+', '')
+
+
+@app.route('/ads.txt')
+def ads_txt():
+    return send_from_directory('static', 'ads.txt')
+
 
 # Register the phone format function as a template filter
 @app.template_filter('whatsapp_phone')
