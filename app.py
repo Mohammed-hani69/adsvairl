@@ -20,13 +20,17 @@ from routes import bp as merchant_bp
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # تعيين مدة الجلسة ليوم واحد
 database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///classified_ads.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+# Remove file size limits
+app.config['MAX_CONTENT_LENGTH'] = None  # No limit on total upload size
+app.config['MAX_FILE_SIZE'] = None  # No limit on individual file size
+app.config['MAX_FILES'] = None  # No limit on number of files
 app.config['WTF_CSRF_ENABLED'] = True
 
 db.init_app(app)
@@ -455,6 +459,8 @@ def auto_create_user(phone, email=None, location_data=None):
 @app.route('/api/ads', methods=['POST'])
 def create_ad():
     try:
+        # Get uploaded files without size restrictions
+        files = request.files.getlist('images')
         # Verify required fields
         required_fields = ['title', 'description', 'price', 'category_id', 'country_id']
         for field in required_fields:
@@ -728,23 +734,56 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'admin_id' not in session:
+            next_url = request.url if request.method == 'GET' else None
+            return redirect(url_for('admin_login', next=next_url))
+        
+        user = User.query.get(session['admin_id'])
+        if not user or not user.is_admin:
+            session.clear()  # تنظيف بيانات الجلسة
+            flash('غير مصرح لك بالوصول إلى لوحة التحكم', 'error')
             return redirect(url_for('admin_login'))
+            
+        # تحديث الجلسة لتجنب مشاكل التوجيه
+        session.permanent = True
         return f(*args, **kwargs)
     return decorated_function
 
 # Admin routes
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
+    # تنظيف الجلسة السابقة
+    if 'admin_id' not in session and 'user_id' in session:
+        session.clear()
+    
+    # إذا كان المستخدم مسجل دخول كأدمن، قم بتوجيهه للوحة التحكم
+    if 'admin_id' in session:
+        user = User.query.get(session['admin_id'])
+        if user and user.is_admin:
+            return redirect(url_for('admin_dashboard'))
+    
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
         
+        if not email or not password:
+            flash('يرجى إدخال البريد الإلكتروني وكلمة المرور', 'error')
+            return render_template('admin/login.html')
+        
         admin = User.query.filter_by(email=email, is_admin=True).first()
         
         if admin and check_password_hash(admin.password_hash, password):
-            session['user_id'] = admin.id
+            # تنظيف الجلسة وإضافة بيانات الأدمن
+            session.clear()
+            session['admin_id'] = admin.id
             session['is_admin'] = True
+            session.permanent = True  # جعل الجلسة دائمة
+            
             flash('تم تسجيل الدخول بنجاح', 'success')
+            
+            # التوجيه للصفحة المطلوبة
+            next_page = request.args.get('next')
+            if next_page and next_page.startswith('/'):
+                return redirect(next_page)
             return redirect(url_for('admin_dashboard'))
         else:
             flash('البريد الإلكتروني أو كلمة المرور غير صحيحة', 'error')
