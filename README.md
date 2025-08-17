@@ -78,7 +78,7 @@ python app.py
 
 git add .
 
-git commit -m "v 1.0.3"
+git commit -m "v 1.0.4"
 
 git push -u origin main
 
