@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, jsonify, redirect, send_from_
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 from flask_wtf.csrf import CSRFProtect
+import logging
+from logging.handlers import RotatingFileHandler
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
@@ -47,6 +49,22 @@ def load_user(user_id):
 
 # Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Set up logging
+if not app.debug:
+    # Create logs directory if it doesn't exist
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+    # Set up file handler
+    file_handler = RotatingFileHandler('logs/adsvairl.log', maxBytes=10240, backupCount=10)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    ))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('Adsvairl startup')
 
 # Register blueprints
 app.register_blueprint(merchant_bp, url_prefix='/merchant')
@@ -433,6 +451,14 @@ def get_categories():
 def auto_create_user(phone, email=None, location_data=None):
     """Create a new user account automatically"""
     try:
+        # Check if user already exists with this email
+        if email:
+            existing_user = User.query.filter_by(email=email).first()
+            if existing_user:
+                # Return existing user without password since account already exists
+                session['user_id'] = existing_user.id
+                return existing_user, None
+
         # Generate a random password
         import random
         import string
@@ -440,6 +466,13 @@ def auto_create_user(phone, email=None, location_data=None):
         
         # Create username from phone number
         username = f"user_{phone.replace('+', '').replace('-', '')}"
+        
+        # Check if username exists and modify if needed
+        base_username = username
+        counter = 1
+        while User.query.filter_by(username=username).first():
+            username = f"{base_username}_{counter}"
+            counter += 1
         
         # Create new user
         user = User(
@@ -464,6 +497,18 @@ def auto_create_user(phone, email=None, location_data=None):
 @app.route('/api/ads', methods=['POST'])
 def create_ad():
     try:
+        # Configure logging
+        app.logger.setLevel(logging.DEBUG)
+        
+        if 'UPLOAD_FOLDER' not in app.config:
+            app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
+            
+        app.logger.debug(f"Form data received: {request.form}")
+        app.logger.debug(f"Files received: {request.files}")
+        
+        # Ensure upload directory exists
+        if not os.path.exists(app.config['UPLOAD_FOLDER']):
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
         # Get uploaded files without size restrictions
         files = request.files.getlist('images')
         # Verify required fields
@@ -518,213 +563,67 @@ def create_ad():
         
         # Save images
         image_paths = []
-        if uploaded_files:
-            for file in uploaded_files:
-                if file.filename:
-                    # Generate unique filename
-                    filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{secure_filename(file.filename)}"
-                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                    file.save(file_path)
-                    image_paths.append(filename)
-                    
-        # Create the ad
-        new_ad = Ad(
-            title=request.form.get('title'),
-            description=request.form.get('description'),
-            price=price,
-            currency=request.form.get('currency', 'USD'),
-            category_id=request.form.get('category_id'),
-            country_id=request.form.get('country_id'),
-            state_id=request.form.get('state_id'),
-            city_id=request.form.get('city_id'),
-            contact_phone=contact_phone,
-            contact_email=contact_email,
-            images=image_paths,
-            user_id=session.get('user_id'),
-            is_active=True,
-            is_approved=True  # You might want to change this based on your moderation policy
-        )
-        
-        try:
-            db.session.add(new_ad)
-            db.session.commit()
-            
-            # Prepare response
-            response_data = {
-                'success': True,
-                'message': 'تم إضافة الإعلان بنجاح',
-                'ad_id': new_ad.id,
-                'url': url_for('ad_details', ad_id=new_ad.id, slug=create_slug(new_ad.title), _external=True)
-            }
-            
-            # Add account info if new account was created
-            if locals().get('new_account', False) and locals().get('temp_password'):
-                response_data.update({
-                    'account_created': True,
-                    'username': locals().get('user').username,
-                    'password': temp_password,
-                    'account_message': 'تم إنشاء حساب جديد لك. احتفظ بمعلومات الدخول.'
-                })
-                
-            return jsonify(response_data)
-            
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({
-                'success': False,
-                'message': 'حدث خطأ أثناء حفظ الإعلان',
-                'error': str(e)
-            }), 500
-        image_paths = []
-        
-        # Check file size and type
-        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-        max_file_size = 5 * 1024 * 1024  # 5MB
-
         for file in uploaded_files:
-            if file and file.filename != '':
-                # Check file extension
-                file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
-                if file_ext not in allowed_extensions:
-                    return jsonify({
-                        'error': 'Invalid file type',
-                        'message': 'نوع الملف غير مسموح به. الأنواع المسموحة: PNG, JPG, JPEG, GIF, WEBP'
-                    }), 400
-
-                # Check file size
-                file.seek(0, 2)  # Seek to end of file
-                file_size = file.tell()
-                file.seek(0)  # Reset file pointer
-                if file_size > max_file_size:
-                    return jsonify({
-                        'error': 'File too large',
-                        'message': 'حجم الملف يتجاوز 5 ميجابايت'
-                    }), 400
-
+            if file and file.filename:
                 filename = secure_filename(file.filename)
-                # Add timestamp and unique ID to avoid conflicts
-                timestamp = int(datetime.now().timestamp())
-                unique_id = str(uuid.uuid4())[:8]
-                filename = f"{timestamp}_{unique_id}_{filename}"
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(file_path)
                 image_paths.append(filename)
 
-        # Validate location data
-        country = db.session.get(Country, request.form.get('country_id'))
-        if not country:
-            return jsonify({
-                'error': 'Invalid country',
-                'message': 'يرجى اختيار البلد'
-            }), 400
-
-        state_id = request.form.get('state_id')
-        if state_id:
-            state = db.session.get(State, state_id)
-            if not state or state.country_id != country.id:
-                return jsonify({
-                    'error': 'Invalid state',
-                    'message': 'المحافظة المختارة غير صحيحة'
-                }), 400
-
-        city_id = request.form.get('city_id')
-        if city_id:
-            city = db.session.get(City, city_id)
-            if not city or (state_id and city.state_id != state_id):
-                return jsonify({
-                    'error': 'Invalid city',
-                    'message': 'المدينة المختارة غير صحيحة'
-                }), 400
-
-        # Check if user is logged in
-        if 'user_id' not in session:
-            return jsonify({
-                'error': 'Unauthorized',
-                'message': 'يرجى تسجيل الدخول أولاً'
-            }), 401
-
         # Create new ad
-        ad = Ad(
+        new_ad = Ad(
             title=request.form.get('title'),
             description=request.form.get('description'),
-            price=price,
-            currency=request.form.get('currency', 'SAR'),
+            price=float(request.form.get('price')),
             category_id=request.form.get('category_id'),
-            country_id=country.id,
-            state_id=state_id,
-            city_id=city_id,
-            user_id=session['user_id'],
+            country_id=request.form.get('country_id'),
+            state_id=request.form.get('state_id'),
+            city_id=request.form.get('city_id'),
+            user_id=session.get('user_id'),
             contact_phone=contact_phone,
             contact_email=contact_email,
             images=image_paths,
+            currency=request.form.get('currency', 'SAR'),
             is_active=True,
             is_approved=True
         )
+        
+        db.session.add(new_ad)
+        db.session.commit()
 
-        # Add to database
-        try:
-            db.session.add(ad)
-            db.session.commit()
+        # Create slug from title
+        ad_slug = create_slug(new_ad.title)
+        
+        # Build the ad URL
+        ad_url = url_for('ad_details', ad_id=new_ad.id, slug=ad_slug, _external=True)
 
-            # Create a URL-friendly slug from the title
-            def slugify(text):
-                text = text.strip().lower()
-                # Replace Arabic characters that might cause issues
-                replacements = {
-                    'أ': 'a', 'إ': 'a', 'آ': 'a', 'ة': 'h',
-                    'ى': 'y', 'ي': 'y', 'ؤ': 'u', 'ئ': 'y'
-                }
-                for ar, en in replacements.items():
-                    text = text.replace(ar, en)
-                # Remove non-word characters and replace spaces with dashes
-                text = re.sub(r'[^\w\s-]', '', text)
-                text = re.sub(r'[-\s]+', '-', text)
-                return text
+        response_data = {
+            'success': True,
+            'message': 'تم نشر إعلانك بنجاح',
+            'ad_id': new_ad.id,
+            'ad_url': ad_url,
+            'redirect_url': ad_url
+        }
 
-            # Create slug from title
-            ad_slug = slugify(ad.title)
-            
-            # Build the ad URL
-            ad_url = url_for('ad_details', ad_id=ad.id, slug=ad_slug, _external=True)
-            
-            response_data = {
-                'success': True,
-                'message': 'تم إضافة الإعلان بنجاح',
-                'ad_id': ad.id,
-                'ad_title': ad.title,
-                'ad_url': ad_url,
-                'redirect_url': ad_url
-            }
+        if 'temp_password' in locals() and temp_password:
+            response_data.update({
+                'account_created': True,
+                'username': contact_phone,
+                'password': temp_password,
+                'account_message': 'تم إنشاء حساب جديد لك. احتفظ بمعلومات الدخول.'
+            })
 
-            # Add account information if a new account was created
-            if 'new_account' in locals() and new_account:
-                response_data.update({
-                    'account_created': True,
-                    'username': user.username,
-                    'password': temp_password,
-                    'account_message': 'تم إنشاء حساب جديد لك تلقائياً. يمكنك استخدام هذه المعلومات لتسجيل الدخول لاحقاً'
-                })
-            elif 'new_account' in locals() and not new_account:
-                response_data.update({
-                    'account_message': 'تم تسجيل الدخول تلقائياً باستخدام رقم هاتفك المسجل مسبقاً'
-                })
-
-            return jsonify(response_data), 201
-
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            # Log the error here if you have logging configured
-            return jsonify({
-                'error': 'Database error',
-                'message': 'حدث خطأ أثناء حفظ الإعلان، يرجى المحاولة مرة أخرى'
-            }), 500
-
+        return jsonify(response_data)
     except Exception as e:
-        # Log the error here if you have logging configured
+        db.session.rollback()  # Roll back any failed database changes
+        app.logger.error(f"Error in create_ad: {str(e)}", exc_info=True)  # Log full traceback
         return jsonify({
-            'error': 'Server error',
-        'message': 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى'
-    }), 500
+            'success': False,
+            'message': 'حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى',
+            'debug_info': str(e) if app.debug else None
+        }), 500
+        
+
 
 @app.route('/category/<category_id>')
 def category_view(category_id):

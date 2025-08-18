@@ -3,6 +3,12 @@
 {% block title %}إضافة إعلان جديد{% endblock %}
 
 {% block extra_head %}
+<!-- Toastify CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<!-- Toastify JS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<!-- Custom Toast Functions -->
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
 <style>
     /* Modal Animation */
     #success-modal {

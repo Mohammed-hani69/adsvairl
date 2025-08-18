@@ -1,0 +1,81 @@
+2025-08-19 00:54:42,262 INFO: Adsvairl startup [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:67]
+2025-08-19 00:55:44,028 INFO: Adsvairl startup [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:67]
+2025-08-19 00:56:27,278 ERROR: Error in create_ad: (sqlite3.IntegrityError) UNIQUE constraint failed: user.email
+[SQL: INSERT INTO user (id, username, email, password_hash, phone, is_active, is_admin, is_vip, created_at, last_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('44df94b5-d9be-4bc4-8802-a0f740a40741', 'user_201145425207', 'hanizezo5@gmail.com', 'scrypt:32768:8:1$7t5ewJ0JsdGhujd9$19d9ed9f241155eb89a20dad3820b43ef826eb0137a0d9e6e0a80adce2137148aa571ea098732cb2ac1ebefd493b69abc045aaf19b6661bd19c6089dcb25d3e8', '+201145425207', 1, 0, 0, '2025-08-18 21:56:27.277287', None)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj) [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:592]
+Traceback (most recent call last):
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.IntegrityError: UNIQUE constraint failed: user.email
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py", line 529, in create_ad
+    user, temp_password = auto_create_user(contact_phone, contact_email, location_data)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py", line 480, in auto_create_user
+    raise e
+  File "C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py", line 472, in auto_create_user
+    db.session.commit()
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\scoping.py", line 599, in commit
+    return self._proxied.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py", line 2032, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py", line 1313, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py", line 1288, in _prepare_impl
+    self.session.flush()
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py", line 4345, in flush
+    self._flush(objects)
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py", line 4480, in _flush
+    with util.safe_reraise():
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py", line 4441, in _flush
+    flush_context.execute()
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 1413, in execute
+    return meth(
+           ^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 1635, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: user.email
+[SQL: INSERT INTO user (id, username, email, password_hash, phone, is_active, is_admin, is_vip, created_at, last_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('44df94b5-d9be-4bc4-8802-a0f740a40741', 'user_201145425207', 'hanizezo5@gmail.com', 'scrypt:32768:8:1$7t5ewJ0JsdGhujd9$19d9ed9f241155eb89a20dad3820b43ef826eb0137a0d9e6e0a80adce2137148aa571ea098732cb2ac1ebefd493b69abc045aaf19b6661bd19c6089dcb25d3e8', '+201145425207', 1, 0, 0, '2025-08-18 21:56:27.277287', None)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)

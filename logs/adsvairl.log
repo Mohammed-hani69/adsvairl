@@ -1,0 +1,118 @@
+2025-08-19 00:56:27,341 ERROR: Error in create_ad: (sqlite3.IntegrityError) UNIQUE constraint failed: user.email
+[SQL: INSERT INTO user (id, username, email, password_hash, phone, is_active, is_admin, is_vip, created_at, last_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('82083dc3-7741-419d-bfd0-ac0b7f104a5b', 'user_201145425207', 'hanizezo5@gmail.com', 'scrypt:32768:8:1$tIDXpn9VRWt0XRlA$24679679f69c9ee9cf9678984f85284dc423a4dade8fc39f6c6a78526681e1f2e90d5ae173a6150a428c407e2fed5a1ac15718461af5c862f0053ff29d086def', '+201145425207', 1, 0, 0, '2025-08-18 21:56:27.338207', None)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj) [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:592]
+Traceback (most recent call last):
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.IntegrityError: UNIQUE constraint failed: user.email
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py", line 529, in create_ad
+    user, temp_password = auto_create_user(contact_phone, contact_email, location_data)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py", line 480, in auto_create_user
+    raise e
+  File "C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py", line 472, in auto_create_user
+    db.session.commit()
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\scoping.py", line 599, in commit
+    return self._proxied.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py", line 2032, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py", line 1313, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py", line 1288, in _prepare_impl
+    self.session.flush()
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py", line 4345, in flush
+    self._flush(objects)
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py", line 4480, in _flush
+    with util.safe_reraise():
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py", line 4441, in _flush
+    flush_context.execute()
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 1413, in execute
+    return meth(
+           ^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 1635, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: user.email
+[SQL: INSERT INTO user (id, username, email, password_hash, phone, is_active, is_admin, is_vip, created_at, last_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: ('82083dc3-7741-419d-bfd0-ac0b7f104a5b', 'user_201145425207', 'hanizezo5@gmail.com', 'scrypt:32768:8:1$tIDXpn9VRWt0XRlA$24679679f69c9ee9cf9678984f85284dc423a4dade8fc39f6c6a78526681e1f2e90d5ae173a6150a428c407e2fed5a1ac15718461af5c862f0053ff29d086def', '+201145425207', 1, 0, 0, '2025-08-18 21:56:27.338207', None)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-08-19 00:57:12,105 INFO: Adsvairl startup [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:67]
+2025-08-19 00:57:15,106 INFO: Adsvairl startup [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:67]
+2025-08-19 00:59:46,809 INFO: Adsvairl startup [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:67]
+2025-08-19 01:03:00,209 INFO: Adsvairl startup [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:67]
+2025-08-19 01:03:01,406 ERROR: Error in create_ad: 'status' is an invalid keyword argument for Ad [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:607]
+Traceback (most recent call last):
+  File "C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py", line 574, in create_ad
+    new_ad = Ad(
+             ^^^
+  File "<string>", line 4, in __init__
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\state.py", line 571, in _initialize_instance
+    with util.safe_reraise():
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\state.py", line 569, in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\decl_base.py", line 2179, in _declarative_constructor
+    raise TypeError(
+TypeError: 'status' is an invalid keyword argument for Ad
+2025-08-19 01:03:01,417 ERROR: Error in create_ad: 'status' is an invalid keyword argument for Ad [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:607]
+Traceback (most recent call last):
+  File "C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py", line 574, in create_ad
+    new_ad = Ad(
+             ^^^
+  File "<string>", line 4, in __init__
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\state.py", line 571, in _initialize_instance
+    with util.safe_reraise():
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\state.py", line 569, in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+  File "C:\Users\Hamada Salim G Trd\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\decl_base.py", line 2179, in _declarative_constructor
+    raise TypeError(
+TypeError: 'status' is an invalid keyword argument for Ad
+2025-08-19 01:04:44,252 INFO: Adsvairl startup [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:67]
+2025-08-19 01:09:51,328 INFO: Adsvairl startup [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:67]
+2025-08-19 01:11:35,536 INFO: Adsvairl startup [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:67]
+2025-08-19 01:11:53,600 INFO: Adsvairl startup [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:67]
+2025-08-19 01:12:30,162 INFO: Adsvairl startup [in C:\Users\Hamada Salim G Trd\Desktop\adsvairl\app.py:67]
