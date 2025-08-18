@@ -956,13 +956,29 @@ def admin_adsense_edit(ad_id):
     
     if request.method == 'POST':
         try:
-            adsense_ad.name = request.form.get('name')
+            # Get required fields
+            name = request.form.get('name')
+            ad_type = request.form.get('ad_type')
+            html_code = request.form.get('html_code')
+            
+            # Validate required fields
+            if not name or not ad_type or not html_code:
+                flash('يرجى ملء جميع الحقول المطلوبة', 'error')
+                return render_template('admin/adsense_form.html', ad=adsense_ad)
+            
+            # Update the AdSense ad
+            adsense_ad.name = name
             adsense_ad.description = request.form.get('description')
-            adsense_ad.html_code = request.form.get('html_code')
-            adsense_ad.ad_type = request.form.get('ad_type')
+            adsense_ad.html_code = html_code
+            adsense_ad.ad_type = ad_type
             adsense_ad.display_order = int(request.form.get('display_order', 0))
-            adsense_ad.start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d') if request.form.get('start_date') else None
-            adsense_ad.end_date = datetime.strptime(request.form.get('end_date'), '%Y-%m-%d') if request.form.get('end_date') else None
+            
+            # Handle dates
+            if request.form.get('start_date'):
+                adsense_ad.start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d')
+            if request.form.get('end_date'):
+                adsense_ad.end_date = datetime.strptime(request.form.get('end_date'), '%Y-%m-%d')
+                
             adsense_ad.is_active = request.form.get('is_active') == 'on'
             adsense_ad.updated_at = datetime.utcnow()
             
@@ -970,7 +986,11 @@ def admin_adsense_edit(ad_id):
             flash('تم تحديث إعلان AdSense بنجاح', 'success')
             return redirect(url_for('admin_adsense'))
             
+        except ValueError as e:
+            db.session.rollback()
+            flash('خطأ في تنسيق التاريخ', 'error')
         except Exception as e:
+            db.session.rollback()
             flash(f'حدث خطأ: {str(e)}', 'error')
     
     return render_template('admin/adsense_form.html', ad=adsense_ad)
