@@ -336,11 +336,12 @@ def get_adsense_ads(page_location=None, ad_type=None):
     return query.all()
 
 @app.route('/')
-def splash():
-    return render_template('splash.html')
-
-@app.route('/home')
 def home():
+    # Check if user has seen splash screen
+    if not session.get('seen_splash'):
+        session['seen_splash'] = True
+        return render_template('splash.html')
+        
     categories = Category.query.filter_by(is_active=True).all()
     featured_ads = Ad.query.filter_by(is_featured=True, is_approved=True, is_active=True).limit(6).all()
     recent_ads = Ad.query.filter_by(is_approved=True, is_active=True).order_by(Ad.created_at.desc()).limit(12).all()
