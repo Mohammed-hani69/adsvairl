@@ -104,6 +104,7 @@
                                 {% if subscription.status == 'pending' %}
                                     <!-- Approve Button -->
                                     <form method="POST" action="{{ url_for('approve_vip_subscription', subscription_id=subscription.id) }}" class="inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                         <button type="submit" class="text-green-600 hover:text-green-900" 
                                                 onclick="return confirm('هل أنت متأكد من قبول هذا الطلب؟')">
                                             <i class="fas fa-check"></i>
@@ -192,6 +193,7 @@
     <div class="bg-white rounded-lg p-6 m-4 max-w-md w-full">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">رفض طلب الاشتراك</h3>
         <form id="rejectionForm" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">سبب الرفض</label>
                 <textarea name="rejection_reason" rows="3" 

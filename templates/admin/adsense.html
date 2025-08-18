@@ -78,6 +78,7 @@
                                 </a>
                                 <form method="POST" action="{{ url_for('admin_adsense_toggle', ad_id=ad.id) }}" 
                                       class="inline">
+                                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                     <button type="submit" class="text-{{ 'yellow' if ad.is_active else 'green' }}-600 hover:text-{{ 'yellow' if ad.is_active else 'green' }}-900">
                                         <i class="fas fa-{{ 'pause' if ad.is_active else 'play' }}"></i>
                                     </button>
@@ -85,6 +86,7 @@
                                 <form method="POST" action="{{ url_for('admin_adsense_delete', ad_id=ad.id) }}" 
                                       class="inline" 
                                       onsubmit="return confirm('هل أنت متأكد من حذف هذا الإعلان؟')">
+                                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                     <button type="submit" class="text-red-600 hover:text-red-900">
                                         <i class="fas fa-trash"></i>
                                     </button>

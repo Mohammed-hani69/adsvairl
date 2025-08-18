@@ -170,11 +170,13 @@
                             {% if subscription.payment_status == 'pending' %}
                             <div class="flex space-x-2 rtl:space-x-reverse">
                                 <form method="POST" action="{{ url_for('approve_vip_subscription', subscription_id=subscription.id) }}" class="inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                     <button type="submit" class="text-green-600 hover:text-green-900">
                                         <i class="fas fa-check"></i>
                                     </button>
                                 </form>
                                 <form method="POST" action="{{ url_for('reject_vip_subscription', subscription_id=subscription.id) }}" class="inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                     <button type="submit" class="text-red-600 hover:text-red-900">
                                         <i class="fas fa-times"></i>
                                     </button>

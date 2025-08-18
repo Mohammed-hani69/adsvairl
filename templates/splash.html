@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adsvairl - Welcome</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #2563EB;
+            opacity: 1;
+            transition: opacity 1s ease-out;
+        }
+        .splash-container {
+            text-align: center;
+            transform: scale(1);
+            transition: transform 1s ease-out;
+            margin-right: -50px; /* Move container to the right */
+        }
+        .logo {
+            max-width: 200px;
+            animation: fadeIn 1s ease-in;
+            /* Removed the filter to keep original logo colors */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .fade-out {
+            opacity: 0;
+            transform: scale(1.1) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-container">
+        <img src="{{ url_for('static', filename='images/logosplash.png') }}" alt="Adsvairl Logo" class="logo">
+    </div>
+    <script>
+        // Get the previous page URL from document.referrer
+        let previousPage = document.referrer || "{{ url_for('home') }}";
+        
+        // Start fade out animation after 3 seconds
+        setTimeout(function() {
+            document.body.classList.add('fade-out');
+            document.querySelector('.splash-container').classList.add('fade-out');
+            
+            // Redirect after animation completes
+            setTimeout(function() {
+                window.location.href = previousPage;
+            }, 1000); // Wait for fade out animation to complete
+        }, 3000); // Show for 3 seconds
+    </script>
+</body>
+</html>

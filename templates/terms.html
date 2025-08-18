@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}شروط الاستخدام - مزاد بلس{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- العنوان الرئيسي -->
+            <div class="text-center mb-12">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">شروط الاستخدام</h1>
+                <div class="w-20 h-1 bg-yellow-500 mx-auto rounded-full"></div>
+            </div>
+
+            <!-- القبول بالشروط -->
+            <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-file-contract text-blue-600 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">القبول بالشروط</h2>
+                </div>
+                <div class="bg-blue-50 border-r-4 border-blue-400 p-4 rounded">
+                    <p class="text-gray-700">
+                        باستخدامك لمنصة مزاد بلس، فإنك توافق على الالتزام بهذه الشروط والأحكام. نرجو قراءة هذه الشروط بعناية قبل استخدام المنصة.
+                    </p>
+                </div>
+            </div>
+
+            <!-- حسابات المستخدمين -->
+            <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-users text-green-600 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">حسابات المستخدمين</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 ml-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-800 mb-2">معلومات الحساب</h3>
+                                <p class="text-gray-600">يجب أن تكون جميع المعلومات المقدمة دقيقة وحديثة</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-key text-yellow-500 mt-1 ml-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-800 mb-2">أمان الحساب</h3>
+                                <p class="text-gray-600">أنت مسؤول عن الحفاظ على سرية معلومات حسابك</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- المحتوى والإعلانات -->
+            <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-ad text-yellow-600 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">المحتوى والإعلانات</h2>
+                </div>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 ml-3"></i>
+                        <div>
+                            <h3 class="font-semibold text-gray-800 mb-1">الإعلانات القانونية</h3>
+                            <p class="text-gray-600">يجب أن تكون جميع الإعلانات متوافقة مع القوانين المحلية</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-times-circle text-red-500 mt-1 ml-3"></i>
+                        <div>
+                            <h3 class="font-semibold text-gray-800 mb-1">المحتوى المحظور</h3>
+                            <p class="text-gray-600">يمنع نشر أي محتوى مسيء أو غير لائق</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-image text-blue-500 mt-1 ml-3"></i>
+                        <div>
+                            <h3 class="font-semibold text-gray-800 mb-1">الصور والمحتوى</h3>
+                            <p class="text-gray-600">يجب أن تكون الصور حقيقية وتمثل المنتج المعروض بدقة</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- إنهاء الخدمة -->
+            <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-ban text-red-600 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">إنهاء الخدمة</h2>
+                </div>
+                <div class="bg-red-50 border-r-4 border-red-400 p-4 rounded">
+                    <p class="text-gray-700">
+                        تحتفظ منصة مزاد بلس بالحق في تعليق أو إنهاء أي حساب يخالف شروط الاستخدام. في حال مخالفة هذه الشروط، قد يتم:
+                    </p>
+                    <ul class="mt-4 space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-red-500 ml-2"></i>
+                            <span>إرسال تنبيه للمستخدم</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-pause-circle text-red-500 ml-2"></i>
+                            <span>تعليق الحساب مؤقتاً</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-times-circle text-red-500 ml-2"></i>
+                            <span>إنهاء الحساب نهائياً</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

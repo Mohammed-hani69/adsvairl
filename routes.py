@@ -7,6 +7,23 @@ from datetime import datetime, timedelta
 
 # Create Blueprint
 bp = Blueprint('merchant', __name__)
+
+@bp.route('/about')
+def about():
+    return render_template('about.html')
+
+@bp.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@bp.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+@bp.route('/help')
+def help():
+    return render_template('help.html')
+
 def get_site_setting(key, default=None):
     from models import SiteSetting
     setting = SiteSetting.query.filter_by(key=key).first()

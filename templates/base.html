@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %} - منصة الإعلانات المبوبة</title>
+    <script>
+        // Show splash screen only on page refresh
+        if (window.performance && window.performance.navigation.type === 1) {
+            // type 1 means page was refreshed
+            window.location.href = '/';
+        }
+    </script>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -247,10 +254,10 @@
                 <div>
                     <h4 class="font-semibold mb-3 md:mb-4 text-base md:text-lg">روابط مفيدة</h4>
                     <ul class="space-y-2 text-gray-300 text-sm md:text-base">
-                        <li><a href="/about" class="hover:text-white transition-colors">عن الموقع</a></li>
-                        <li><a href="/privacy" class="hover:text-white transition-colors">سياسة الخصوصية</a></li>
-                        <li><a href="/terms" class="hover:text-white transition-colors">شروط الاستخدام</a></li>
-                        <li><a href="/help" class="hover:text-white transition-colors">المساعدة</a></li>
+                        <li><a href="{{ url_for('merchant.about') }}" class="hover:text-white transition-colors">عن الموقع</a></li>
+                        <li><a href="{{ url_for('merchant.privacy') }}" class="hover:text-white transition-colors">سياسة الخصوصية</a></li>
+                        <li><a href="{{ url_for('merchant.terms') }}" class="hover:text-white transition-colors">شروط الاستخدام</a></li>
+                        <li><a href="{{ url_for('merchant.help') }}" class="hover:text-white transition-colors">المساعدة</a></li>
                     </ul>
                 </div>
                 

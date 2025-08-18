@@ -336,6 +336,10 @@ def get_adsense_ads(page_location=None, ad_type=None):
     return query.all()
 
 @app.route('/')
+def splash():
+    return render_template('splash.html')
+
+@app.route('/home')
 def home():
     categories = Category.query.filter_by(is_active=True).all()
     featured_ads = Ad.query.filter_by(is_featured=True, is_approved=True, is_active=True).limit(6).all()

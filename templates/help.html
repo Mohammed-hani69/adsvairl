@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}مركز المساعدة - مزاد بلس{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- العنوان الرئيسي -->
+            <div class="text-center mb-12">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">مركز المساعدة</h1>
+                <div class="w-20 h-1 bg-yellow-500 mx-auto rounded-full"></div>
+                <p class="text-gray-600 mt-4">كيف يمكننا مساعدتك اليوم؟</p>
+            </div>
+
+            <!-- قسم البحث -->
+            <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-8">
+                <div class="max-w-2xl mx-auto">
+                    <div class="relative">
+                        <input type="text" 
+                               placeholder="ابحث عن سؤالك هنا..." 
+                               class="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                        >
+                        <div class="absolute left-3 top-3 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الأسئلة الشائعة -->
+            <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-question-circle text-blue-600 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">الأسئلة الشائعة</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- السؤال الأول -->
+                    <div class="border border-gray-200 rounded-lg">
+                        <button class="w-full px-6 py-4 text-right flex items-center justify-between focus:outline-none" onclick="toggleFAQ('faq1')">
+                            <h3 class="text-lg font-semibold text-gray-800">كيف يمكنني نشر إعلان؟</h3>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform duration-300" id="icon-faq1"></i>
+                        </button>
+                        <div class="hidden px-6 py-4 bg-gray-50 border-t border-gray-200" id="faq1">
+                            <div class="space-y-4">
+                                <p class="text-gray-600">لنشر إعلان جديد، اتبع الخطوات التالية:</p>
+                                <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                                    <li class="flex items-center">
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="ml-2">انقر على زر "إضافة إعلان" في الأعلى</span>
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="ml-2">املأ تفاصيل الإعلان بدقة</span>
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="ml-2">أضف صوراً واضحة للمنتج</span>
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="ml-2">انقر على "نشر الإعلان"</span>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- السؤال الثاني -->
+                    <div class="border border-gray-200 rounded-lg">
+                        <button class="w-full px-6 py-4 text-right flex items-center justify-between focus:outline-none" onclick="toggleFAQ('faq2')">
+                            <h3 class="text-lg font-semibold text-gray-800">كيف يمكنني تعديل إعلاني؟</h3>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform duration-300" id="icon-faq2"></i>
+                        </button>
+                        <div class="hidden px-6 py-4 bg-gray-50 border-t border-gray-200" id="faq2">
+                            <div class="space-y-4">
+                                <p class="text-gray-600">لتعديل إعلان موجود:</p>
+                                <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                                    <li class="flex items-center">
+                                        <span class="ml-2">ادخل إلى لوحة التحكم الخاصة بك</span>
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="ml-2">اختر الإعلان المراد تعديله</span>
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="ml-2">انقر على زر "تعديل"</span>
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="ml-2">قم بإجراء التعديلات المطلوبة</span>
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="ml-2">احفظ التغييرات</span>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- السؤال الثالث -->
+                    <div class="border border-gray-200 rounded-lg">
+                        <button class="w-full px-6 py-4 text-right flex items-center justify-between focus:outline-none" onclick="toggleFAQ('faq3')">
+                            <h3 class="text-lg font-semibold text-gray-800">كيف أصبح عضواً مميزاً (VIP)؟</h3>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform duration-300" id="icon-faq3"></i>
+                        </button>
+                        <div class="hidden px-6 py-4 bg-gray-50 border-t border-gray-200" id="faq3">
+                            <p class="text-gray-600 mb-4">للحصول على عضوية VIP:</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-600">
+                                <li>انتقل إلى صفحة العضوية المميزة</li>
+                                <li>اختر الباقة المناسبة لك</li>
+                                <li>أكمل عملية الدفع</li>
+                                <li>استمتع بالمميزات الحصرية</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تواصل معنا -->
+            <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-headset text-green-600 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">تواصل معنا</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-phone text-green-500 ml-3 text-xl"></i>
+                            <h3 class="font-semibold text-gray-800">الدعم الفني</h3>
+                        </div>
+                        <p class="text-gray-600" dir="ltr">+20 10 3360 7749</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for FAQ toggles -->
+<script>
+function toggleFAQ(id) {
+    const content = document.getElementById(id);
+    const icon = document.getElementById('icon-' + id);
+    
+    if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        icon.style.transform = 'rotate(-180deg)';
+    } else {
+        content.classList.add('hidden');
+        icon.style.transform = 'rotate(0)';
+    }
+}
+</script>
+{% endblock %}
